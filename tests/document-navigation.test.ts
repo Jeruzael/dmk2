@@ -4,6 +4,40 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { SafeMarkdown } from "../src/ui/Records.js";
 
+test("heading anchors preserve literal underscores in repository source links", () => {
+  const html = renderToStaticMarkup(
+    createElement(SafeMarkdown, {
+      content: "# API_reference\n\n[API](#api_reference)",
+      documents: [],
+      onDocument() {},
+    }),
+  );
+  assert.match(html, /id="api_reference"/);
+  assert.match(html, /href="#api_reference"/);
+});
+
+test("generated heading suffixes cannot collide with literal suffixed headings", () => {
+  const html = renderToStaticMarkup(
+    createElement(SafeMarkdown, {
+      content:
+        "# Repeat\n\n# Repeat\n\n# Repeat-1\n\n# Repeat\n\n# Repeat-1\n\n# Repeat-1-1",
+      documents: [],
+      onDocument() {},
+    }),
+  );
+  assert.deepEqual(
+    [...html.matchAll(/<h1 id="([^"]*)"/g)].map((match) => match[1]),
+    [
+      "repeat",
+      "repeat-1",
+      "repeat-1-1",
+      "repeat-2",
+      "repeat-1-2",
+      "repeat-1-1-1",
+    ],
+  );
+});
+
 test("repository Markdown resolves relative encoded document links and stable nested duplicate heading targets", () => {
   const content =
     "# System **map**\n\n## Repeat\n\n## Repeat\n\n[Guide](../Guides/with%20space.md#start-here)\n\n[Unsafe](../../../../secret.md)\n\n![No image](https://example.invalid/image.png)\n";

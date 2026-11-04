@@ -69,7 +69,7 @@ export function createRepositoryFixture(root: string) {
   );
   write(
     "Docs/Guides/repeated.md",
-    "# Heading guide\n\n[Second repeat](#repeat-1)\n\n## Repeat\n\nFirst section.\n\n## Repeat\n\nSecond section.\n",
+    "# Heading guide\n\n[Second repeat](#repeat-1)\n\n[API reference](#api_reference)\n\n[Literal suffixed heading](#repeat-1-1)\n\n## Repeat\n\nFirst section.\n\n## Repeat\n\nSecond section.\n\n## Repeat-1\n\nLiteral suffixed section.\n\n## API_reference\n\nLiteral underscore section.\n",
   );
   write("Docs/Guides/multi.part.MD", "# Uppercase extension\n");
   write(

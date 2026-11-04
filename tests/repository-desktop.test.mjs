@@ -184,6 +184,38 @@ test(
         .click();
       await page
         .getByRole("button", {
+          name: "Open repository document Docs/Guides/repeated.md",
+          exact: true,
+        })
+        .click();
+      const sourcePreview = page.locator(".repository-preview");
+      await sourcePreview
+        .getByRole("button", { name: "API reference", exact: true })
+        .click();
+      await page.waitForFunction(() => location.hash === "#api_reference");
+      await sourcePreview
+        .locator("#api_reference")
+        .getByText("API_reference", { exact: true })
+        .waitFor();
+      await sourcePreview
+        .getByRole("button", { name: "Literal suffixed heading", exact: true })
+        .click();
+      await page.waitForFunction(() => location.hash === "#repeat-1-1");
+      assert.equal(
+        await sourcePreview.locator("#repeat-1-1").textContent(),
+        "Repeat-1",
+      );
+      assert.equal(
+        await sourcePreview.evaluate((element) => {
+          const ids = [...element.querySelectorAll("h1[id],h2[id]")].map(
+            (heading) => heading.id,
+          );
+          return new Set(ids).size === ids.length;
+        }),
+        true,
+      );
+      await page
+        .getByRole("button", {
           name: "Open repository document Docs/Guides/long-guide.md",
           exact: true,
         })

@@ -27,7 +27,7 @@ const headingText = (children: ReactNode): string =>
 const headingId = (children: ReactNode) =>
   headingText(children)
     .toLowerCase()
-    .replace(/[^\p{L}\p{N}\s-]/gu, "")
+    .replace(/[^\p{L}\p{N}\p{M}\s_-]/gu, "")
     .trim()
     .replace(/\s+/g, "-");
 export function SafeMarkdown({
@@ -50,9 +50,13 @@ export function SafeMarkdown({
   const ids = new Map<string, number>();
   const uniqueHeading = (children: ReactNode) => {
     const base = headingId(children);
-    const count = ids.get(base) ?? 0;
-    ids.set(base, count + 1);
-    return count ? `${base}-${count}` : base;
+    let count = ids.get(base) ?? 0;
+    let candidate = base;
+    while (ids.has(candidate)) candidate = `${base}-${++count}`;
+    ids.set(base, count);
+    // Generated IDs must also be reserved against literal suffixed headings.
+    ids.set(candidate, 0);
+    return candidate;
   };
   const repositoryLink = (href: string) =>
     repository
