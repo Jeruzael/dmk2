@@ -49,4 +49,4 @@ Recommended Phase 2, in order:
 4. Improve guided work-item/link editing, keyboard/focus accessibility, search and safe Mermaid rendering.
 5. Qualify macOS/Linux and actual host connections in Codex CLI, Claude Code and Gemini CLI without adding provider dependencies to DMK2.
 
-The user authorized a feature branch, push and Draft PR against `master`. Do not merge automatically. Exact commit and PR URL are reported in the chat to avoid self-referential commit identifiers in committed files.
+Published branch: `codex/phase-1-local-workspace`. [Draft PR #1](https://github.com/Jeruzael/dmk2/pull/1) targets `master`; it has not been merged. The implementation commit is `bcf3e05f8b389cce7b66e6962e05391f153881b6`; the final branch head is reported in chat to avoid a self-referential identifier. Commits are unsigned because the configured SSH signing helper waited for an unavailable passphrase; per-command overrides left global signing settings intact.
