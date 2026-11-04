@@ -42,10 +42,10 @@ Files: `src/ui/work/{BacklogView,shared,model,work.css}`, new `src/ui/intelligen
 
 Files: `src/ui/intelligence/{RecordWorkspace,RecordDetails}`, `App.tsx`, shared styles, selector and Electron tests.
 
-- [ ] Add failing navigation/preservation tests for Questions, Decision Register and four Security & Architecture subviews.
-- [ ] Implement compact searchable/filterable/paged rows and shared accessible details with full fields, links, alternatives, consequences, qualified confirmation claims and paged revision history.
-- [ ] Reuse revision-safe service writes through the existing editor; verify old/new revisions and MCP refresh behavior.
-- [ ] Run stage and existing tests; commit the stage.
+- [x] Add failing navigation/preservation tests for Questions, Decision Register and four Security & Architecture subviews.
+- [x] Implement compact searchable/filterable/paged rows and shared accessible details with full fields, links, alternatives, consequences, qualified confirmation claims and paged revision history.
+- [x] Reuse revision-safe service writes through the existing editor; verify old/new revisions and MCP refresh behavior.
+- [x] Run stage and existing tests; commit the stage.
 
 ## Stage 3 — Repository Library
 
@@ -67,3 +67,14 @@ Files: new `src/repository/{schema,git,library}.ts`, migration 3, narrow Electro
 - Ruling: observe committed revisions, not a mutable working tree — exact-SHA provenance and reproducible on-demand reads; uncommitted edits require a source commit before reindex.
 - Ruling: use filename-derived titles and explicit path markers for initial metadata — index does not read every body. Actual document headings appear on demand; unrecognized status remains unknown.
 - Stage 1: reproduced Source/Sprint collision (chip right 5228 px vs next-cell left 1147 px at 1024). Two focused unit regressions and two real Electron regressions failed before the fix, then passed. Full production check passed 31 core/MCP/render tests and six Electron tests, including all prior work views and package/restart cases. Full source text remains exact in task details; Overview initially shows five of 42 blockers.
+- Stage 2: added two failing real Electron journeys, then implemented question/decision registers and four security/architecture subviews. Fixed editor layering/focus and reverse component relationship navigation; details history now loads on demand. The original smoke test follows the new tabs/drawer while retaining its content and persistence assertions. Full production check passes 31 core/MCP/render tests and eight real Electron tests.
+- Private reference acquisition: earlier temporary matches were import artifacts and an existing candidate checkout had no valid HEAD. A separate no-checkout clone outside this repository was acquired for authorized read-only acceptance. Remote develop and the clone resolve to the supplied SHA; independent Git inventory confirms 284 Markdown files, 271 under Docs, eight over 100 KB (largest 240259 bytes). No private document body or copied DMK2 record is in this branch. Original user DB v2 table counts/hashes were captured read-only in ignored local results.
+
+## Stage 3 interface rulings
+
+- `RepositoryLibrary(databasePath)` opens a second existing WorkspaceDatabase connection. `getSnapshot(projectId)` is synchronous metadata-only; `describe(projectId)` adds a bounded read-only availability/current-ref probe. `connect(args, root)` and `refresh(args)` are async observation operations. `read({projectId,indexRevision,path,offset})` returns UTF-8-safe text pages, `nextOffset`, `totalBytes`, `hasMore` and pinned commit. A stale index revision fails explicitly.
+- Native selection is `repositoryLibrary('choose', {projectId,expectedRevision,ref,operationId,origin})`. Main checks a replay receipt before opening the directory chooser, then passes the chosen root to `connect`; raw renderer-supplied paths are never accepted. Other actions are `get`, `refresh`, `read`, and bounded local observation history. Strict schemas and sender validation apply.
+- Root/ref/index metadata lives in `repository_sources`; immutable before/after observations live in `repository_events`. Reuse global `operations` for local receipts with category `is_import=2`, excluded by the existing portable export query (`is_import=0`). Existing core/MCP/import operations still share and enforce the global ID namespace. State/event/receipt commit in one transaction after filesystem work completes. Format 2 and all existing managed-record schemas stay unchanged.
+- Connect request hashes bind action, parsed client arguments and selected root. Main can verify an identical retry against the root in its stored receipt without reopening the chooser. Refresh hashes bind action and parsed arguments; expectedRevision binds the previously configured source. Changed roots/refs/arguments need a new operation ID.
+- Git executable is resolved to an absolute trusted host path, never from the selected repository's working directory. Spawn directly with fixed arguments and `shell:false`; sanitize Git environment, disable optional locks/replacements/lazy fetch/global config. Reject unsupported linked worktrees, alternate object stores, partial clones, external config includes and Git-metadata symlinks. Bound traversal/time/output; report unsupported sources honestly.
+- Inventory uses NUL-delimited `ls-tree` at a verified SHA, regular Markdown blobs only. Paths, object IDs and sizes are validated; symlinks are skipped. Per-page blob reads use the indexed object ID and bounded streaming, not arbitrary filesystem paths, shell strings or mutable working-tree files. Reindex reports blob-based added/changed/removed sets. Failed reads/refreshes preserve prior index and managed history.

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Entity } from "../../core/schema.js";
 import { Fields, HistoryList, SafeMarkdown } from "../Records.js";
 import { useHistory } from "../useHistory.js";
@@ -18,9 +18,11 @@ export function RecordDetails({
 }) {
   const panel = useRef<HTMLElement>(null);
   const title = useRef<HTMLHeadingElement>(null);
+  const [showHistory, setShowHistory] = useState(false);
   const history = useHistory(record.projectId, {
     entityId: record.id,
     revision: record.revision,
+    active: showHistory,
   });
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
@@ -40,6 +42,17 @@ export function RecordDetails({
       ),
       ...(Array.isArray(record.data.dependencies)
         ? record.data.dependencies
+        : []),
+      ...(record.kind === "architecture"
+        ? records
+            .filter(
+              (candidate) =>
+                candidate.kind === "architecture" &&
+                [candidate.data.fromId, candidate.data.toId].includes(
+                  record.id,
+                ),
+            )
+            .map((candidate) => candidate.id)
         : []),
     ].filter((id): id is string => typeof id === "string" && !!id),
   );
@@ -98,7 +111,9 @@ export function RecordDetails({
               approval. Supporting references remain below.
             </p>
           )}
-          {["risk", "architecture"].includes(record.kind) && (
+          {(["risk", "architecture"].includes(record.kind) ||
+            (record.kind === "requirement" &&
+              record.data.classification === "security")) && (
             <p className="insight-qualification">
               Recorded status and mitigation prose do not establish security
               assurance or independent verification.
@@ -134,10 +149,15 @@ export function RecordDetails({
               })}
             </section>
           )}
-          <details>
+          <details
+            open={showHistory}
+            onToggle={(event) => setShowHistory(event.currentTarget.open)}
+          >
             <summary>Revision history</summary>
             {history.error && <p role="alert">{history.error}</p>}
-            <HistoryList events={history.events} records={records} />
+            {showHistory && (
+              <HistoryList events={history.events} records={records} />
+            )}
             {history.busy && <p role="status">Loading revisions…</p>}
             {history.more && (
               <button disabled={history.busy} onClick={history.loadMore}>

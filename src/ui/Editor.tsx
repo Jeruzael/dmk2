@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Entity, RecordKind } from "../core/schema.js";
 export const labels: Record<string, string> = {
   name: "Name",
@@ -194,6 +194,16 @@ export function Editor({
   );
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const panel = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null;
+    panel.current
+      ?.querySelector<HTMLElement>("input, select, textarea, button")
+      ?.focus();
+    return () => {
+      if (previous?.isConnected) previous.focus();
+    };
+  }, []);
   const set = (key: string, value: unknown) =>
     setData((old) => ({ ...old, [key]: value }));
   return (
@@ -203,6 +213,25 @@ export function Editor({
         aria-modal="true"
         aria-labelledby="editor-title"
         className="editor"
+        ref={panel}
+        onKeyDown={(event) => {
+          if (event.key !== "Tab") return;
+          const controls = [
+            ...(panel.current?.querySelectorAll<HTMLElement>(
+              "button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled)",
+            ) ?? []),
+          ].filter((control) => control.getClientRects().length);
+          if (event.shiftKey && document.activeElement === controls[0]) {
+            event.preventDefault();
+            controls.at(-1)?.focus();
+          } else if (
+            !event.shiftKey &&
+            document.activeElement === controls.at(-1)
+          ) {
+            event.preventDefault();
+            controls[0]?.focus();
+          }
+        }}
       >
         <header>
           <div>

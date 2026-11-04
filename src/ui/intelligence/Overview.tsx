@@ -201,7 +201,7 @@ export function Overview({
                     documents: "Document libraries",
                     questions: "Questions to resolve",
                     decisions: "Decision Register",
-                    security: "Security & Architecture",
+                    security: "Explore security & architecture",
                   }[destination]
                 }{" "}
                 <span aria-hidden="true">↗</span>

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Entity, RecordKind, ToolName } from "../core/schema.js";
 import { execute, unwrap } from "./bridge.js";
 import { Editor } from "./Editor.js";
-import { Fields, HistoryList, RecordCard, SafeMarkdown } from "./Records.js";
+import { Fields, HistoryList, SafeMarkdown } from "./Records.js";
 import { WorkManagement } from "./work/WorkManagement.js";
 import { useHistory } from "./useHistory.js";
 import { RecordHistory } from "./RecordHistory.js";
@@ -11,6 +11,7 @@ import {
   type IntelligenceDestination,
 } from "./intelligence/Overview.js";
 import { RecordDetails } from "./intelligence/RecordDetails.js";
+import { RecordWorkspace } from "./intelligence/RecordWorkspace.js";
 const views = [
   "Overview",
   "Plan & WBS",
@@ -68,6 +69,10 @@ export function App() {
   }>();
   const [history, setHistory] = useState<Entity>();
   const [detailId, setDetailId] = useState<string>();
+  const [knowledgeRequest, setKnowledgeRequest] = useState<{
+    tab: string;
+    nonce: number;
+  }>();
   const [workOpen, setWorkOpen] = useState<{ id: string; nonce: number }>();
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -177,27 +182,6 @@ export function App() {
   const documents = records.filter((r) => r.kind === "document");
   const shownDocs = filtered.filter((r) => r.kind === "document");
   const doc = shownDocs.find((r) => r.id === selectedDoc) ?? shownDocs[0];
-  const cards = (items: Entity[]) =>
-    items.length ? (
-      <div className="card-grid">
-        {items.map((r) => (
-          <RecordCard
-            key={r.id}
-            record={r}
-            records={records}
-            edit={(entity) =>
-              setEditing({ kind: entity.kind as RecordKind, entity })
-            }
-            history={setHistory}
-          />
-        ))}
-      </div>
-    ) : (
-      <Empty
-        title="Nothing recorded yet"
-        text="Your agent can organize this area through MCP, or you can add a record above."
-      />
-    );
   const openRecord = (entity: Entity) => {
     if (entity.kind === "work_item") {
       setDetailId(undefined);
@@ -207,6 +191,11 @@ export function App() {
   };
   const navigateIntelligence = (destination: IntelligenceDestination) => {
     setSearch("");
+    if (destination === "questions" || destination === "decisions")
+      setKnowledgeRequest({
+        tab: destination === "questions" ? "Questions" : "Decision Register",
+        nonce: Date.now(),
+      });
     setView(
       (
         {
@@ -487,21 +476,27 @@ export function App() {
                     text="Add a Markdown document or ask your agent to record a brief, plan or architecture note."
                   />
                 ))}
-              {view === "Decisions & Questions" &&
-                cards(
-                  filtered.filter((r) =>
-                    ["question", "decision"].includes(r.kind),
-                  ),
-                )}
-              {view === "Security & Architecture" &&
-                cards(
-                  filtered.filter(
-                    (r) =>
-                      ["architecture", "risk"].includes(r.kind) ||
-                      (r.kind === "requirement" &&
-                        r.data.classification === "security"),
-                  ),
-                )}
+              {view === "Decisions & Questions" && (
+                <RecordWorkspace
+                  key={`${project.id}:decisions`}
+                  projectId={project.id}
+                  area="decisions"
+                  records={records}
+                  search={search}
+                  onOpen={openRecord}
+                  request={knowledgeRequest}
+                />
+              )}
+              {view === "Security & Architecture" && (
+                <RecordWorkspace
+                  key={`${project.id}:security`}
+                  projectId={project.id}
+                  area="security"
+                  records={records}
+                  search={search}
+                  onOpen={openRecord}
+                />
+              )}
               {view === "Activity" && (
                 <>
                   {summary?.imports.map((i) => (
@@ -550,6 +545,7 @@ export function App() {
       </main>
       {detail && (
         <RecordDetails
+          key={detail.id}
           record={detail}
           records={records}
           onClose={() => setDetailId(undefined)}
