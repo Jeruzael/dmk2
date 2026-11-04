@@ -1,0 +1,363 @@
+{
+  "format": "dmk2",
+  "schemaVersion": 1,
+  "checksum": "e943a852850113a235860b254a336c64ac685022ce743b55e6eb25650228ee4e",
+  "payload": {
+    "project": {
+      "id": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+      "projectId": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+      "kind": "project",
+      "revision": 1,
+      "createdAt": "2026-11-04T12:09:42.517Z",
+      "updatedAt": "2026-11-04T12:09:42.517Z",
+      "data": {
+        "name": "Legacy synthetic project",
+        "description": "",
+        "goals": [],
+        "lifecycle": "idea",
+        "repository": "",
+        "branch": "",
+        "observedCommit": "",
+        "sources": ["fixture:phase1-baseline"]
+      }
+    },
+    "records": [
+      {
+        "id": "5ef7747e-3092-4598-a030-b579bf90b2f9",
+        "projectId": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+        "kind": "work_item",
+        "revision": 1,
+        "createdAt": "2026-11-04T12:09:42.523Z",
+        "updatedAt": "2026-11-04T12:09:42.523Z",
+        "data": {
+          "title": "Legacy work package",
+          "description": "",
+          "relatedIds": [],
+          "sources": [],
+          "parentId": null,
+          "dependencies": [],
+          "sourceIdentifier": "",
+          "sourceNamespace": "",
+          "sourceStatus": "UNKNOWN",
+          "executionStatus": "unknown",
+          "acceptanceCriteria": [],
+          "owner": "",
+          "evidence": [],
+          "lastSourceRevision": ""
+        }
+      },
+      {
+        "id": "ee91c54d-e2f2-4632-b250-787b3b853833",
+        "projectId": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+        "kind": "work_item",
+        "revision": 2,
+        "createdAt": "2026-11-04T12:09:42.526Z",
+        "updatedAt": "2026-11-04T12:09:42.530Z",
+        "data": {
+          "title": "Legacy task",
+          "description": "Recorded before the Structured Workspace contract",
+          "relatedIds": [],
+          "sources": [],
+          "parentId": "5ef7747e-3092-4598-a030-b579bf90b2f9",
+          "dependencies": [],
+          "sourceIdentifier": "",
+          "sourceNamespace": "",
+          "sourceStatus": "DONE",
+          "executionStatus": "partial",
+          "acceptanceCriteria": ["Preserve existing history"],
+          "owner": "",
+          "evidence": [],
+          "lastSourceRevision": ""
+        }
+      }
+    ],
+    "events": [
+      {
+        "id": "7bedd333-af3b-4f91-8548-a9802b5bec1c",
+        "sequence": 1,
+        "projectId": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+        "entityType": "project",
+        "entityId": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+        "operation": "create_project",
+        "operationId": "legacy-project",
+        "previousRevision": 0,
+        "newRevision": 1,
+        "before": null,
+        "after": {
+          "id": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+          "projectId": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+          "kind": "project",
+          "revision": 1,
+          "createdAt": "2026-11-04T12:09:42.517Z",
+          "updatedAt": "2026-11-04T12:09:42.517Z",
+          "data": {
+            "name": "Legacy synthetic project",
+            "description": "",
+            "goals": [],
+            "lifecycle": "idea",
+            "repository": "",
+            "branch": "",
+            "observedCommit": "",
+            "sources": ["fixture:phase1-baseline"]
+          }
+        },
+        "origin": "synthetic-phase1-fixture",
+        "timestamp": "2026-11-04T12:09:42.517Z",
+        "sourceRef": ""
+      },
+      {
+        "id": "7505e00b-35d3-42e6-9c65-ec6cfe2a535b",
+        "sequence": 2,
+        "projectId": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+        "entityType": "work_item",
+        "entityId": "5ef7747e-3092-4598-a030-b579bf90b2f9",
+        "operation": "save_work_item",
+        "operationId": "legacy-root",
+        "previousRevision": 0,
+        "newRevision": 1,
+        "before": null,
+        "after": {
+          "id": "5ef7747e-3092-4598-a030-b579bf90b2f9",
+          "projectId": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+          "kind": "work_item",
+          "revision": 1,
+          "createdAt": "2026-11-04T12:09:42.523Z",
+          "updatedAt": "2026-11-04T12:09:42.523Z",
+          "data": {
+            "title": "Legacy work package",
+            "description": "",
+            "relatedIds": [],
+            "sources": [],
+            "parentId": null,
+            "dependencies": [],
+            "sourceIdentifier": "",
+            "sourceNamespace": "",
+            "sourceStatus": "UNKNOWN",
+            "executionStatus": "unknown",
+            "acceptanceCriteria": [],
+            "owner": "",
+            "evidence": [],
+            "lastSourceRevision": ""
+          }
+        },
+        "origin": "synthetic-phase1-fixture",
+        "timestamp": "2026-11-04T12:09:42.523Z",
+        "sourceRef": ""
+      },
+      {
+        "id": "abead2ce-e806-4f78-bd29-c5ba3ad8c66e",
+        "sequence": 3,
+        "projectId": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+        "entityType": "work_item",
+        "entityId": "ee91c54d-e2f2-4632-b250-787b3b853833",
+        "operation": "save_work_item",
+        "operationId": "legacy-task",
+        "previousRevision": 0,
+        "newRevision": 1,
+        "before": null,
+        "after": {
+          "id": "ee91c54d-e2f2-4632-b250-787b3b853833",
+          "projectId": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+          "kind": "work_item",
+          "revision": 1,
+          "createdAt": "2026-11-04T12:09:42.526Z",
+          "updatedAt": "2026-11-04T12:09:42.526Z",
+          "data": {
+            "title": "Legacy task",
+            "description": "",
+            "relatedIds": [],
+            "sources": [],
+            "parentId": "5ef7747e-3092-4598-a030-b579bf90b2f9",
+            "dependencies": [],
+            "sourceIdentifier": "",
+            "sourceNamespace": "",
+            "sourceStatus": "DONE",
+            "executionStatus": "partial",
+            "acceptanceCriteria": ["Preserve existing history"],
+            "owner": "",
+            "evidence": [],
+            "lastSourceRevision": ""
+          }
+        },
+        "origin": "synthetic-phase1-fixture",
+        "timestamp": "2026-11-04T12:09:42.526Z",
+        "sourceRef": ""
+      },
+      {
+        "id": "c15d13a9-4dee-4480-b70b-1c53f57760ab",
+        "sequence": 4,
+        "projectId": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+        "entityType": "work_item",
+        "entityId": "ee91c54d-e2f2-4632-b250-787b3b853833",
+        "operation": "save_work_item",
+        "operationId": "legacy-update",
+        "previousRevision": 1,
+        "newRevision": 2,
+        "before": {
+          "id": "ee91c54d-e2f2-4632-b250-787b3b853833",
+          "projectId": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+          "kind": "work_item",
+          "revision": 1,
+          "createdAt": "2026-11-04T12:09:42.526Z",
+          "updatedAt": "2026-11-04T12:09:42.526Z",
+          "data": {
+            "title": "Legacy task",
+            "description": "",
+            "relatedIds": [],
+            "sources": [],
+            "parentId": "5ef7747e-3092-4598-a030-b579bf90b2f9",
+            "dependencies": [],
+            "sourceIdentifier": "",
+            "sourceNamespace": "",
+            "sourceStatus": "DONE",
+            "executionStatus": "partial",
+            "acceptanceCriteria": ["Preserve existing history"],
+            "owner": "",
+            "evidence": [],
+            "lastSourceRevision": ""
+          }
+        },
+        "after": {
+          "id": "ee91c54d-e2f2-4632-b250-787b3b853833",
+          "projectId": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+          "kind": "work_item",
+          "revision": 2,
+          "createdAt": "2026-11-04T12:09:42.526Z",
+          "updatedAt": "2026-11-04T12:09:42.530Z",
+          "data": {
+            "title": "Legacy task",
+            "description": "Recorded before the Structured Workspace contract",
+            "relatedIds": [],
+            "sources": [],
+            "parentId": "5ef7747e-3092-4598-a030-b579bf90b2f9",
+            "dependencies": [],
+            "sourceIdentifier": "",
+            "sourceNamespace": "",
+            "sourceStatus": "DONE",
+            "executionStatus": "partial",
+            "acceptanceCriteria": ["Preserve existing history"],
+            "owner": "",
+            "evidence": [],
+            "lastSourceRevision": ""
+          }
+        },
+        "origin": "synthetic-phase1-fixture",
+        "timestamp": "2026-11-04T12:09:42.530Z",
+        "sourceRef": ""
+      }
+    ],
+    "operations": [
+      {
+        "operationId": "legacy-project",
+        "requestHash": "184837bbe8eae16ebb423a772e44c26a3f4da219ed2c2718d692ef5285b41aab",
+        "projectId": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+        "result": {
+          "id": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+          "projectId": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+          "kind": "project",
+          "revision": 1,
+          "createdAt": "2026-11-04T12:09:42.517Z",
+          "updatedAt": "2026-11-04T12:09:42.517Z",
+          "data": {
+            "name": "Legacy synthetic project",
+            "description": "",
+            "goals": [],
+            "lifecycle": "idea",
+            "repository": "",
+            "branch": "",
+            "observedCommit": "",
+            "sources": ["fixture:phase1-baseline"]
+          }
+        }
+      },
+      {
+        "operationId": "legacy-root",
+        "requestHash": "86f2dc82d0234f6f7824dd208a8a93822e67575456221df8686d758db6451436",
+        "projectId": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+        "result": {
+          "id": "5ef7747e-3092-4598-a030-b579bf90b2f9",
+          "projectId": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+          "kind": "work_item",
+          "revision": 1,
+          "createdAt": "2026-11-04T12:09:42.523Z",
+          "updatedAt": "2026-11-04T12:09:42.523Z",
+          "data": {
+            "title": "Legacy work package",
+            "description": "",
+            "relatedIds": [],
+            "sources": [],
+            "parentId": null,
+            "dependencies": [],
+            "sourceIdentifier": "",
+            "sourceNamespace": "",
+            "sourceStatus": "UNKNOWN",
+            "executionStatus": "unknown",
+            "acceptanceCriteria": [],
+            "owner": "",
+            "evidence": [],
+            "lastSourceRevision": ""
+          }
+        }
+      },
+      {
+        "operationId": "legacy-task",
+        "requestHash": "c4c2021ce52fdedff2aa325942c3bc33c55dd5f0a3833ec4507a9e10bab0b7e8",
+        "projectId": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+        "result": {
+          "id": "ee91c54d-e2f2-4632-b250-787b3b853833",
+          "projectId": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+          "kind": "work_item",
+          "revision": 1,
+          "createdAt": "2026-11-04T12:09:42.526Z",
+          "updatedAt": "2026-11-04T12:09:42.526Z",
+          "data": {
+            "title": "Legacy task",
+            "description": "",
+            "relatedIds": [],
+            "sources": [],
+            "parentId": "5ef7747e-3092-4598-a030-b579bf90b2f9",
+            "dependencies": [],
+            "sourceIdentifier": "",
+            "sourceNamespace": "",
+            "sourceStatus": "DONE",
+            "executionStatus": "partial",
+            "acceptanceCriteria": ["Preserve existing history"],
+            "owner": "",
+            "evidence": [],
+            "lastSourceRevision": ""
+          }
+        }
+      },
+      {
+        "operationId": "legacy-update",
+        "requestHash": "76529e1aecc31e0ed4cbc032fcbf07bd94ddc2cbb5867c753fbfc4e7e928ee68",
+        "projectId": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+        "result": {
+          "id": "ee91c54d-e2f2-4632-b250-787b3b853833",
+          "projectId": "2451392c-56d8-4fa9-af5b-2837de3cb602",
+          "kind": "work_item",
+          "revision": 2,
+          "createdAt": "2026-11-04T12:09:42.526Z",
+          "updatedAt": "2026-11-04T12:09:42.530Z",
+          "data": {
+            "title": "Legacy task",
+            "description": "Recorded before the Structured Workspace contract",
+            "relatedIds": [],
+            "sources": [],
+            "parentId": "5ef7747e-3092-4598-a030-b579bf90b2f9",
+            "dependencies": [],
+            "sourceIdentifier": "",
+            "sourceNamespace": "",
+            "sourceStatus": "DONE",
+            "executionStatus": "partial",
+            "acceptanceCriteria": ["Preserve existing history"],
+            "owner": "",
+            "evidence": [],
+            "lastSourceRevision": ""
+          }
+        }
+      }
+    ],
+    "importHistory": []
+  }
+}

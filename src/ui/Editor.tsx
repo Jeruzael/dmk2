@@ -45,6 +45,12 @@ export const labels: Record<string, string> = {
   severity: "Severity",
   mitigation: "Proposed mitigation",
   relatedIds: "Related records",
+  goal: "Sprint goal",
+  startDate: "Start date",
+  endDate: "End date",
+  risk: "Risk",
+  sprintId: "Sprint",
+  checklist: "Checklist",
 };
 const common = { title: "", description: "", sources: [], relatedIds: [] };
 export const templates: Record<RecordKind | "project", Record<string, any>> = {
@@ -97,6 +103,7 @@ export const templates: Record<RecordKind | "project", Record<string, any>> = {
     evidence: [],
     lastSourceRevision: "",
   },
+  sprint: { ...common, goal: "", startDate: "", endDate: "" },
   document: {
     ...common,
     category: "general",
@@ -162,6 +169,7 @@ const long = new Set([
   "markdown",
   "threat",
   "mitigation",
+  "goal",
 ]);
 
 export function Editor({
@@ -178,7 +186,11 @@ export function Editor({
   onClose: () => void;
 }) {
   const [data, setData] = useState<Record<string, any>>(() =>
-    structuredClone(entity?.data ?? templates[kind]),
+    structuredClone(
+      kind === "sprint"
+        ? { ...templates.sprint, ...entity?.data }
+        : (entity?.data ?? templates[kind]),
+    ),
   );
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -213,7 +225,17 @@ export function Editor({
             setError("");
             setBusy(true);
             try {
-              await onSave(data);
+              const clean =
+                kind === "sprint"
+                  ? Object.fromEntries(
+                      Object.entries(data).filter(
+                        ([key, value]) =>
+                          !["startDate", "endDate"].includes(key) ||
+                          value !== "",
+                      ),
+                    )
+                  : data;
+              await onSave(clean);
               onClose();
             } catch (error) {
               setError(String(error instanceof Error ? error.message : error));
@@ -275,6 +297,7 @@ export function Editor({
                   {labels[key] ?? key}
                   {relation ? (
                     <select
+                      aria-label={labels[key] ?? key}
                       multiple={multiple}
                       value={value ?? ""}
                       onChange={(e) =>
@@ -295,6 +318,7 @@ export function Editor({
                     </select>
                   ) : options ? (
                     <select
+                      aria-label={labels[key] ?? key}
                       value={value}
                       onChange={(e) => set(key, e.target.value)}
                     >
@@ -305,6 +329,7 @@ export function Editor({
                   ) : Array.isArray(value) ? (
                     <>
                       <textarea
+                        aria-label={labels[key] ?? key}
                         rows={3}
                         value={value.join("\n")}
                         onChange={(e) => set(key, e.target.value.split("\n"))}
@@ -319,6 +344,7 @@ export function Editor({
                     </>
                   ) : long.has(key) ? (
                     <textarea
+                      aria-label={labels[key] ?? key}
                       rows={key === "markdown" ? 16 : 3}
                       required={key === "statement"}
                       value={value}
@@ -326,6 +352,10 @@ export function Editor({
                     />
                   ) : (
                     <input
+                      aria-label={labels[key] ?? key}
+                      type={
+                        ["startDate", "endDate"].includes(key) ? "date" : "text"
+                      }
                       required={key === "name" || key === "title"}
                       maxLength={key === "name" || key === "title" ? 300 : 2000}
                       value={value}

@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { executionStatuses, workPriorities, workRisks } from "./work-values.js";
+export { executionStatuses, workPriorities, workRisks } from "./work-values.js";
 export const id = z
   .string()
   .min(1)
@@ -15,6 +17,15 @@ const common = {
   relatedIds: links,
   sources: refs,
 };
+export const checklistItemSchema = z.strictObject({
+  id,
+  text: z.string().trim().min(1).max(2000),
+  done: z.boolean(),
+  kind: z.enum(["implementation", "verification"]).optional(),
+  evidence: z.array(short.min(1)).max(100).optional(),
+  sourceRef: short.optional(),
+});
+export type ChecklistItem = z.infer<typeof checklistItemSchema>;
 export const projectData = z.strictObject({
   name: title,
   description: text.default(""),
@@ -112,7 +123,30 @@ export const recordSchemas = {
     owner: short.default(""),
     evidence: refs,
     lastSourceRevision: short.default(""),
+    // No defaults on additive fields: v1 snapshots and normalized hashes stay exact.
+    priority: z.enum(workPriorities).optional(),
+    risk: z.enum(workRisks).optional(),
+    sprintId: id.nullable().optional(),
+    checklist: z
+      .array(checklistItemSchema)
+      .max(500)
+      .refine(
+        (items) => new Set(items.map((i) => i.id)).size === items.length,
+        "Checklist IDs must be unique",
+      )
+      .optional(),
   }),
+  sprint: z
+    .strictObject({
+      ...common,
+      goal: text.default(""),
+      startDate: z.iso.date().optional(),
+      endDate: z.iso.date().optional(),
+    })
+    .refine(
+      (v) => !v.startDate || !v.endDate || v.startDate <= v.endDate,
+      "Sprint end date must not be before start date",
+    ),
   document: z.strictObject({
     ...common,
     category: short.default("general"),
@@ -153,6 +187,7 @@ export const kindSchema = z.enum([
   "document",
   "architecture",
   "risk",
+  "sprint",
 ]);
 export const entitySchema = z.strictObject({
   id,
@@ -166,6 +201,7 @@ export const entitySchema = z.strictObject({
     "document",
     "architecture",
     "risk",
+    "sprint",
   ]),
   revision: z.number().int().positive(),
   createdAt: z.iso.datetime(),
@@ -214,6 +250,7 @@ export const importEventSchema = z.strictObject({
   after: entitySchema,
   checksum: z.string().regex(/^[a-f0-9]{64}$/),
   requestHash: z.string().regex(/^[a-f0-9]{64}$/),
+  packageVersion: z.union([z.literal(1), z.literal(2)]).optional(),
 });
 export const payloadSchema = z.strictObject({
   project: entitySchema,
@@ -224,7 +261,7 @@ export const payloadSchema = z.strictObject({
 });
 export const packageSchema = z.strictObject({
   format: z.literal("dmk2"),
-  schemaVersion: z.literal(1),
+  schemaVersion: z.union([z.literal(1), z.literal(2)]),
   checksum: z.string().regex(/^[a-f0-9]{64}$/),
   payload: payloadSchema,
 });
@@ -276,11 +313,14 @@ export const toolSchemas = {
   }),
   save_document: z.strictObject({ ...save, data: recordSchemas.document }),
   save_risk: z.strictObject({ ...save, data: recordSchemas.risk }),
+  save_sprint: z.strictObject({ ...save, data: recordSchemas.sprint }),
   get_history: z.strictObject({
     ...query,
     entityId: id.optional(),
     search: short.default(""),
     afterSequence: z.number().int().nonnegative().default(0),
+    beforeSequence: z.number().int().positive().optional(),
+    direction: z.enum(["asc", "desc"]).default("asc"),
     limit: z.number().int().min(1).max(1000).default(200),
   }),
   get_summary: z.strictObject(query),
@@ -299,6 +339,7 @@ export const modifyingTools = new Set<ToolName>([
   "save_architecture",
   "save_document",
   "save_risk",
+  "save_sprint",
   "import_project",
 ]);
 export const toolKinds: Partial<Record<ToolName, RecordKind>> = {
@@ -309,4 +350,5 @@ export const toolKinds: Partial<Record<ToolName, RecordKind>> = {
   save_architecture: "architecture",
   save_document: "document",
   save_risk: "risk",
+  save_sprint: "sprint",
 };

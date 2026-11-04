@@ -36,7 +36,8 @@ test("real stdio Fitness workflow preserves all records, events and operation re
     a = await connect(dir);
     b = await connect(freshDir);
     const tools = await a.client.listTools();
-    assert.equal(tools.tools.length, 19);
+    assert.equal(tools.tools.length, 20);
+    assert.ok(tools.tools.some((t) => t.name === "save_sprint"));
     const ids = await createSample(a.call);
     const { projectId } = ids;
     const records = await a.call("list_records", { projectId });

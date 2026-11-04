@@ -1,5 +1,7 @@
 # Phase 1 bounded candidate delivery
 
+This report records the original milestone. See [Phase 1.2 Structured Workspace](structured-workspace.md) for the current five-view redesign, compatibility evidence and synthetic screenshots.
+
 DMK2 implements the Agent → standard MCP stdio → transactional SQLite → isolated Electron UI → durable revisions → portable export/import workflow. Architecture, table schema and migrations are in [architecture.md](architecture.md); exact tools, generated client configuration and agent workflow are in [integration.md](integration.md); [verification.md](verification.md) describes the acceptance evidence and its limits.
 
 ## Build and operate

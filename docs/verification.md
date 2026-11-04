@@ -1,5 +1,7 @@
 # Phase 1 verification
 
+This report records the original milestone. Current redesign evidence is in [Phase 1.2 Structured Workspace](structured-workspace.md).
+
 Acceptance date: 2026-11-04, Windows x64. All content was synthetic. No paid model or model-provider request was executed by DMK2 or its acceptance clients.
 
 ## Environment

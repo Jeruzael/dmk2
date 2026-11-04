@@ -17,7 +17,11 @@ try {
     name: "get_capabilities",
     arguments: {},
   });
-  if (result.isError || tools.tools.length !== 19)
+  if (
+    result.isError ||
+    tools.tools.length !== 20 ||
+    !tools.tools.some((t) => t.name === "save_sprint")
+  )
     throw new Error("Capability check failed");
   console.log(
     `DMK2 stdio connection OK: ${tools.tools.length} tools. No model request made.`,

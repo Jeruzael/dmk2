@@ -5,7 +5,7 @@ import { databasePath } from "../core/paths.js";
 import { modifyingTools, toolSchemas, type ToolName } from "../core/schema.js";
 
 const service = new WorkspaceService(databasePath());
-const server = new McpServer({ name: "dmk2", version: "0.1.0" });
+const server = new McpServer({ name: "dmk2", version: "0.2.0" });
 const descriptions: Record<ToolName, string> = {
   get_capabilities:
     "Discover local DMK2 capabilities, record kinds and limits.",
@@ -26,15 +26,17 @@ const descriptions: Record<ToolName, string> = {
   save_requirement:
     "Create or replace a functional, nonfunctional or security requirement with acceptance criteria.",
   save_work_item:
-    "Create or replace a task or WBS node. Source status and DMK2 execution status remain separate. Parent and dependencies must exist in this project.",
+    "Create or replace a task or WBS node with optional priority, risk, sprint and checklist. Source status, execution, checklist completion and verification remain separate. References must exist in this project; preserve untouched fields.",
   save_architecture:
     "Create or replace a component, relationship, proposal or verification record.",
   save_document:
     "Create or replace Markdown content; source paths are metadata and never opened.",
   save_risk:
     "Create or replace an identified threat, mitigation and verification requirements.",
+  save_sprint:
+    "Create or revise an optional sprint/milestone with a title, goal and optional dates. Work items reference its stable ID; task-count and checklist progress do not prove delivery verification.",
   get_history:
-    "Read immutable project events in ascending sequence. Page with afterSequence; search includes snapshots and provenance.",
+    "Read immutable project events. Default ascending order pages with afterSequence; direction desc pages with beforeSequence. Search includes snapshots and provenance before pagination.",
   get_summary:
     "Read source-qualified counts, unresolved questions, blockers and local import receipts. No invented health or completion score.",
   export_project:
