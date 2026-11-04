@@ -1,0 +1,15 @@
+node_modules/
+dist/
+dist-node/
+release/
+test-results/
+coverage/
+.superpowers/
+.env*
+*.db
+*.db-*
+*.sqlite*
+*.dmk2
+*.log
+*.tsbuildinfo
+.DS_Store

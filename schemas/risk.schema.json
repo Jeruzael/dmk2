@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "description": {
+      "default": "",
+      "type": "string",
+      "maxLength": 100000
+    },
+    "relatedIds": {
+      "default": [],
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200,
+        "pattern": "^[a-zA-Z0-9._:-]+$"
+      }
+    },
+    "sources": {
+      "default": [],
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000
+      }
+    },
+    "threat": {
+      "default": "",
+      "type": "string",
+      "maxLength": 100000
+    },
+    "severity": {
+      "default": "unknown",
+      "type": "string",
+      "enum": [
+        "unknown",
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "mitigation": {
+      "default": "",
+      "type": "string",
+      "maxLength": 100000
+    },
+    "status": {
+      "default": "open",
+      "type": "string",
+      "enum": [
+        "open",
+        "mitigated",
+        "accepted",
+        "closed"
+      ]
+    },
+    "verification": {
+      "default": [],
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000
+      }
+    }
+  },
+  "required": [
+    "title"
+  ],
+  "additionalProperties": false
+}

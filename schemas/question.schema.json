@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "description": {
+      "default": "",
+      "type": "string",
+      "maxLength": 100000
+    },
+    "relatedIds": {
+      "default": [],
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200,
+        "pattern": "^[a-zA-Z0-9._:-]+$"
+      }
+    },
+    "sources": {
+      "default": [],
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000
+      }
+    },
+    "context": {
+      "default": "",
+      "type": "string",
+      "maxLength": 100000
+    },
+    "reason": {
+      "default": "",
+      "type": "string",
+      "maxLength": 100000
+    },
+    "state": {
+      "default": "unanswered",
+      "type": "string",
+      "enum": [
+        "unanswered",
+        "answered",
+        "deferred",
+        "not-applicable"
+      ]
+    },
+    "answer": {
+      "default": "",
+      "type": "string",
+      "maxLength": 100000
+    },
+    "rationale": {
+      "default": "",
+      "type": "string",
+      "maxLength": 100000
+    }
+  },
+  "required": [
+    "title"
+  ],
+  "additionalProperties": false
+}

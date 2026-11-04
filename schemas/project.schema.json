@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "description": {
+      "default": "",
+      "type": "string",
+      "maxLength": 100000
+    },
+    "goals": {
+      "default": [],
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000
+      }
+    },
+    "lifecycle": {
+      "default": "idea",
+      "type": "string",
+      "enum": [
+        "idea",
+        "discovery",
+        "planning",
+        "implementation",
+        "maintenance",
+        "archived"
+      ]
+    },
+    "repository": {
+      "default": "",
+      "type": "string",
+      "maxLength": 2000
+    },
+    "branch": {
+      "default": "",
+      "type": "string",
+      "maxLength": 2000
+    },
+    "observedCommit": {
+      "default": "",
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^$|^[a-fA-F0-9]{7,64}$"
+    },
+    "sources": {
+      "default": [],
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000
+      }
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "additionalProperties": false
+}

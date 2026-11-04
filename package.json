@@ -1,0 +1,53 @@
+{
+  "name": "dmk2",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DMK2 — Your project canvas. AI does the organizing.",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "main": "dist-node/electron/main.js",
+  "engines": {
+    "node": ">=22.13.0 <23 || >=24.0.0"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build:node": "tsc -p tsconfig.node.json && esbuild src/electron/preload.ts --bundle --platform=node --format=cjs --external:electron --outfile=dist-node/electron/preload.cjs",
+    "build": "npm run typecheck && npm run build:node && vite build",
+    "start": "electron .",
+    "dev": "npm run build && electron .",
+    "preview:ui": "vite --host 127.0.0.1",
+    "mcp": "node dist-node/mcp/server.js",
+    "mcp:config": "node scripts/mcp-config.mjs",
+    "mcp:test": "node scripts/connection-test.mjs",
+    "test": "tsx --test --test-concurrency=1 tests/*.test.ts",
+    "pretest": "npm run build:node",
+    "pretest:desktop": "npm run build && esbuild tests/sample.ts --format=esm --outfile=test-results/sample.mjs",
+    "test:desktop": "node --test tests/desktop.test.mjs",
+    "sample": "tsx scripts/sample.ts",
+    "schema": "tsx scripts/generate-schema.ts",
+    "licenses": "node scripts/licenses.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run build && npm test && npm run test:desktop"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-markdown": "10.1.0",
+    "remark-gfm": "4.0.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "electron": "45.2.2",
+    "esbuild": "0.28.2",
+    "playwright": "1.64.1",
+    "prettier": "3.9.10",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vite": "8.3.5"
+  }
+}
