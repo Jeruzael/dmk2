@@ -57,7 +57,7 @@ Publication head and review outcome are recorded in the PR and implementation-pl
 
 ## Synthetic screenshots
 
-[Overview](screenshots/project-intelligence/overview-1366.png) · [Backlog](screenshots/project-intelligence/backlog-1366.png) · [Decision Register](screenshots/project-intelligence/decisions-1366.png) · [Security Requirements](screenshots/project-intelligence/security-1366.png) · [Repository Library](screenshots/project-intelligence/repository-library-1366.png)
+[Overview](screenshots/project-intelligence/overview-1366.png) · [Backlog](screenshots/project-intelligence/backlog-1366.png) · [Decision Register](screenshots/project-intelligence/decisions-1366.png) · [Security Requirements](screenshots/project-intelligence/security-1366.png) · [Repository Library](screenshots/project-intelligence/repository-library-1366.png) · [Repository preview](screenshots/project-intelligence/repository-preview-1366.png)
 
 ## Remaining limits
 

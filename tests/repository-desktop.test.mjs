@@ -290,6 +290,23 @@ test(
         "docs/screenshots/project-intelligence/repository-library-1366.png",
         Buffer.from(capture, "base64"),
       );
+      await page
+        .locator(".repository-layout")
+        .evaluate((element) => element.scrollIntoView({ block: "start" }));
+      const previewCapture = await app.evaluate(async ({ BrowserWindow }) =>
+        (
+          await BrowserWindow.getAllWindows()[0].webContents.capturePage(
+            undefined,
+            { stayHidden: true },
+          )
+        )
+          .toPNG()
+          .toString("base64"),
+      );
+      writeFileSync(
+        "docs/screenshots/project-intelligence/repository-preview-1366.png",
+        Buffer.from(previewCapture, "base64"),
+      );
       fixture.write(
         "Docs/Planning/milestone.md",
         "# Changed milestone\n\nAn observed source revision.\n",
