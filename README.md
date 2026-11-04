@@ -26,7 +26,7 @@ npm run mcp:config
 npm run mcp:test
 ```
 
-The configuration generator prints ready-to-copy Codex CLI TOML and Claude Code/Gemini CLI JSON using the **actual absolute Node executable and built server path on your machine**. It never edits your client settings. See [client examples and workflow](docs/integration.md) and [AGENTS.md](AGENTS.md).
+The configuration generator prints ready-to-copy Codex CLI TOML and Claude Code/Gemini CLI JSON using the **actual absolute Node executable and built server path on your machine**. It never edits your client settings. See [client examples and workflow](docs/integration.md), [AGENTS.md](AGENTS.md), and the [project onboarding agent skill](docs/onboarding-skill.md). The skill is optional agent guidance; it must be installed/discovered by a compatible host and does not add new MCP tools.
 
 To run the independent MCP process directly:
 
