@@ -15,6 +15,30 @@ import { DatabaseSync } from "node:sqlite";
 import { WorkspaceService } from "../src/core/service.js";
 import { recordSchemas, type Entity } from "../src/core/schema.js";
 import { createRepositoryFixture } from "./repository-fixture.js";
+import { resolveGitRevision } from "../src/repository/git.js";
+
+test("a HEAD branch switch between Git reads cannot mix branch and commit provenance", async (t) => {
+  const { fixture } = await setup(t);
+  fixture.git("checkout", "-b", "other");
+  fixture.write("README.md", "# Another committed source\n");
+  fixture.git("add", "-A");
+  fixture.git("commit", "-m", "Synthetic other branch");
+  const otherCommit = fixture.git("rev-parse", "HEAD");
+  fixture.git("symbolic-ref", "HEAD", "refs/heads/develop");
+  let calls = 0;
+  const revision = await resolveGitRevision("HEAD", async (command) => {
+    const result = Buffer.from(fixture.git(...command));
+    // A real source writer switches HEAD exactly between our read processes.
+    if (++calls === 1) fixture.git("symbolic-ref", "HEAD", "refs/heads/other");
+    return result;
+  });
+  assert.equal(
+    revision.commit,
+    revision.branch === "develop" ? fixture.commit : otherCommit,
+  );
+  assert.equal(revision.branch, "develop");
+  assert.equal(revision.ref, "HEAD");
+});
 
 async function setup(t: { after: (callback: () => void) => void }) {
   const dir = mkdtempSync(join(tmpdir(), "dmk2-repository-"));

@@ -219,35 +219,44 @@ async function output(
 }
 export async function inspectRevision(input: string, requestedRef: string) {
   const root = validateRepositoryRoot(input);
+  const revision = await resolveGitRevision(requestedRef, (command) =>
+    output(root, command, 8192),
+  );
+  return { root, ...revision };
+}
+export async function resolveGitRevision(
+  requestedRef: string,
+  run: (command: string[]) => Promise<Buffer>,
+) {
   const ref = repositoryRef.parse(requestedRef);
+  const symbolic = (
+    await run([
+      "rev-parse",
+      "--symbolic-full-name",
+      "--verify",
+      "--end-of-options",
+      ref,
+    ])
+  )
+    .toString("utf8")
+    .trim();
+  // Pin the resolved full ref before reading its object. HEAD may switch to a
+  // different branch between processes; it must not change this observation.
+  const resolved = symbolic || ref;
   const commit = (
-    await output(
-      root,
-      ["rev-parse", "--verify", "--end-of-options", `${ref}^{commit}`],
-      8192,
-    )
+    await run([
+      "rev-parse",
+      "--verify",
+      "--end-of-options",
+      `${resolved}^{commit}`,
+    ])
   )
     .toString("utf8")
     .trim();
   if (!/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(commit))
     throw new Error("Source did not resolve to an exact Git commit.");
-  const symbolic = (
-    await output(
-      root,
-      [
-        "rev-parse",
-        "--symbolic-full-name",
-        "--verify",
-        "--end-of-options",
-        ref,
-      ],
-      8192,
-    )
-  )
-    .toString("utf8")
-    .trim();
   const branch = symbolic.startsWith("refs/heads/") ? symbolic.slice(11) : "";
-  return { root, ref, commit, branch };
+  return { ref, commit, branch };
 }
 function pathMetadata(
   path: string,
