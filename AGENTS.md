@@ -2,6 +2,10 @@
 
 DMK2 is an independent local project workspace, licensed AGPL v3. Do not copy private data, credentials, runtime databases or source clones into this repository. Do not modify the original Docmonstakrakin application.
 
+## Project onboarding agent skill
+
+For a user asking an agent to set up, track, or reconcile a project, load the source-controlled [dmk2-project-onboarding skill](.agents/skills/dmk2-project-onboarding/SKILL.md) when supported by the host. Its [guide](docs/onboarding-skill.md) explains installation, tests and limitations. The skill supplements the rules below; it does not grant access to a repository, replace the runtime tool schemas or authorize bulk writes. Inspect current DMK2 capabilities and get user approval for consequential changes.
+
 ## When connected to a DMK2 MCP server
 
 1. Call `get_capabilities` and `list_projects` before recording. Read existing records before proposing replacements.
