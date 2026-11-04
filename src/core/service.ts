@@ -201,8 +201,9 @@ export class WorkspaceService {
     if (tool === "get_capabilities")
       return {
         name: "DMK2",
-        version: "0.1.0",
-        schemaVersion: 1,
+        version: "0.2.0",
+        schemaVersion: 2,
+        readablePackageVersions: [1, 2],
         tools: Object.keys(toolSchemas),
         recordKinds: kinds,
         transport: "stdio",
@@ -226,9 +227,11 @@ export class WorkspaceService {
       );
     if (tool === "get_history") {
       return this.snapshots(
-        "SELECT snapshot FROM events WHERE project_id=? AND sequence>? AND (? IS NULL OR entity_id=?) AND instr(lower(snapshot),lower(?))>0 ORDER BY sequence LIMIT ?",
+        `SELECT snapshot FROM events WHERE project_id=? AND sequence>? AND (? IS NULL OR sequence<?) AND (? IS NULL OR entity_id=?) AND instr(lower(snapshot),lower(?))>0 ORDER BY sequence ${args.direction === "desc" ? "DESC" : "ASC"} LIMIT ?`,
         args.projectId,
         args.afterSequence,
+        args.beforeSequence ?? null,
+        args.beforeSequence ?? null,
         args.entityId ?? null,
         args.entityId ?? null,
         args.search,
@@ -245,6 +248,13 @@ export class WorkspaceService {
       });
       return {
         project,
+        latestSequence: Number(
+          this.store.db
+            .prepare(
+              "SELECT COALESCE(MAX(sequence),0) AS last FROM events WHERE project_id=?",
+            )
+            .get(args.projectId)?.last,
+        ),
         counts: Object.fromEntries(
           kinds.map((k) => [k, records.filter((r) => r.kind === k).length]),
         ),
@@ -293,7 +303,7 @@ export class WorkspaceService {
       };
       return {
         format: "dmk2",
-        schemaVersion: 1,
+        schemaVersion: 2,
         checksum: hash(payload),
         payload,
       };
@@ -384,6 +394,7 @@ export class WorkspaceService {
       after: project,
       checksum: pkg.checksum,
       requestHash,
+      packageVersion: pkg.schemaVersion,
     };
     this.store.db
       .prepare("INSERT INTO imports(id,project_id,snapshot) VALUES(?,?,?)")

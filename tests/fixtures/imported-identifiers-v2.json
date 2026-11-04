@@ -1,0 +1,340 @@
+{
+  "format": "dmk2",
+  "schemaVersion": 2,
+  "checksum": "725e7ec2b30df97697e4bd738dcf67c7372579e12d918da1c7f92b400b87c31d",
+  "payload": {
+    "project": {
+      "id": "d4620768-6a7d-4439-919e-c02f36506801",
+      "projectId": "d4620768-6a7d-4439-919e-c02f36506801",
+      "kind": "project",
+      "revision": 1,
+      "createdAt": "2026-11-04T12:50:22.480Z",
+      "updatedAt": "2026-11-04T12:50:22.480Z",
+      "data": {
+        "name": "Synthetic imported identifiers",
+        "description": "",
+        "goals": [],
+        "lifecycle": "idea",
+        "repository": "",
+        "branch": "",
+        "observedCommit": "",
+        "sources": []
+      }
+    },
+    "records": [
+      {
+        "id": "a123e5fb-ad78-40b4-bb94-e63ecef60638",
+        "projectId": "d4620768-6a7d-4439-919e-c02f36506801",
+        "kind": "work_item",
+        "revision": 1,
+        "createdAt": "2026-11-04T12:50:22.485Z",
+        "updatedAt": "2026-11-04T12:50:22.485Z",
+        "data": {
+          "title": "Unassigned imported task",
+          "description": "",
+          "relatedIds": [],
+          "sources": [],
+          "parentId": null,
+          "dependencies": [],
+          "sourceIdentifier": "",
+          "sourceNamespace": "",
+          "sourceStatus": "UNKNOWN",
+          "executionStatus": "unknown",
+          "acceptanceCriteria": [],
+          "owner": "",
+          "evidence": [],
+          "lastSourceRevision": ""
+        }
+      },
+      {
+        "id": "new",
+        "projectId": "d4620768-6a7d-4439-919e-c02f36506801",
+        "kind": "work_item",
+        "revision": 1,
+        "createdAt": "2026-11-04T12:50:22.485Z",
+        "updatedAt": "2026-11-04T12:50:22.485Z",
+        "data": {
+          "title": "Imported task with a reserved-looking ID",
+          "description": "",
+          "relatedIds": [],
+          "sources": [],
+          "parentId": null,
+          "dependencies": [],
+          "sourceIdentifier": "",
+          "sourceNamespace": "",
+          "sourceStatus": "UNKNOWN",
+          "executionStatus": "unknown",
+          "acceptanceCriteria": [],
+          "owner": "",
+          "evidence": [],
+          "lastSourceRevision": "",
+          "sprintId": "unassigned"
+        }
+      },
+      {
+        "id": "unassigned",
+        "projectId": "d4620768-6a7d-4439-919e-c02f36506801",
+        "kind": "sprint",
+        "revision": 1,
+        "createdAt": "2026-11-04T12:50:22.483Z",
+        "updatedAt": "2026-11-04T12:50:22.483Z",
+        "data": {
+          "title": "Recorded imported milestone",
+          "description": "",
+          "relatedIds": [],
+          "sources": [],
+          "goal": ""
+        }
+      }
+    ],
+    "events": [
+      {
+        "id": "0b0a12bf-9539-443c-9457-d910f7aae5c4",
+        "sequence": 1,
+        "projectId": "d4620768-6a7d-4439-919e-c02f36506801",
+        "entityType": "project",
+        "entityId": "d4620768-6a7d-4439-919e-c02f36506801",
+        "operation": "create_project",
+        "operationId": "id-project",
+        "previousRevision": 0,
+        "newRevision": 1,
+        "before": null,
+        "after": {
+          "id": "d4620768-6a7d-4439-919e-c02f36506801",
+          "projectId": "d4620768-6a7d-4439-919e-c02f36506801",
+          "kind": "project",
+          "revision": 1,
+          "createdAt": "2026-11-04T12:50:22.480Z",
+          "updatedAt": "2026-11-04T12:50:22.480Z",
+          "data": {
+            "name": "Synthetic imported identifiers",
+            "description": "",
+            "goals": [],
+            "lifecycle": "idea",
+            "repository": "",
+            "branch": "",
+            "observedCommit": "",
+            "sources": []
+          }
+        },
+        "origin": "synthetic-import-id-fixture",
+        "timestamp": "2026-11-04T12:50:22.480Z",
+        "sourceRef": ""
+      },
+      {
+        "id": "c53b36d0-1205-4ad2-ab16-f033c9f92c84",
+        "sequence": 2,
+        "projectId": "d4620768-6a7d-4439-919e-c02f36506801",
+        "entityType": "sprint",
+        "entityId": "unassigned",
+        "operation": "save_sprint",
+        "operationId": "id-sprint",
+        "previousRevision": 0,
+        "newRevision": 1,
+        "before": null,
+        "after": {
+          "id": "unassigned",
+          "projectId": "d4620768-6a7d-4439-919e-c02f36506801",
+          "kind": "sprint",
+          "revision": 1,
+          "createdAt": "2026-11-04T12:50:22.483Z",
+          "updatedAt": "2026-11-04T12:50:22.483Z",
+          "data": {
+            "title": "Recorded imported milestone",
+            "description": "",
+            "relatedIds": [],
+            "sources": [],
+            "goal": ""
+          }
+        },
+        "origin": "synthetic-import-id-fixture",
+        "timestamp": "2026-11-04T12:50:22.483Z",
+        "sourceRef": ""
+      },
+      {
+        "id": "15379139-d307-46e0-94e1-e168ca307ea6",
+        "sequence": 3,
+        "projectId": "d4620768-6a7d-4439-919e-c02f36506801",
+        "entityType": "work_item",
+        "entityId": "new",
+        "operation": "save_work_item",
+        "operationId": "id-assigned",
+        "previousRevision": 0,
+        "newRevision": 1,
+        "before": null,
+        "after": {
+          "id": "new",
+          "projectId": "d4620768-6a7d-4439-919e-c02f36506801",
+          "kind": "work_item",
+          "revision": 1,
+          "createdAt": "2026-11-04T12:50:22.485Z",
+          "updatedAt": "2026-11-04T12:50:22.485Z",
+          "data": {
+            "title": "Imported task with a reserved-looking ID",
+            "description": "",
+            "relatedIds": [],
+            "sources": [],
+            "parentId": null,
+            "dependencies": [],
+            "sourceIdentifier": "",
+            "sourceNamespace": "",
+            "sourceStatus": "UNKNOWN",
+            "executionStatus": "unknown",
+            "acceptanceCriteria": [],
+            "owner": "",
+            "evidence": [],
+            "lastSourceRevision": "",
+            "sprintId": "unassigned"
+          }
+        },
+        "origin": "synthetic-import-id-fixture",
+        "timestamp": "2026-11-04T12:50:22.485Z",
+        "sourceRef": ""
+      },
+      {
+        "id": "2a52bc86-f0ec-41c0-b1aa-7fce732f5941",
+        "sequence": 4,
+        "projectId": "d4620768-6a7d-4439-919e-c02f36506801",
+        "entityType": "work_item",
+        "entityId": "a123e5fb-ad78-40b4-bb94-e63ecef60638",
+        "operation": "save_work_item",
+        "operationId": "id-unassigned",
+        "previousRevision": 0,
+        "newRevision": 1,
+        "before": null,
+        "after": {
+          "id": "a123e5fb-ad78-40b4-bb94-e63ecef60638",
+          "projectId": "d4620768-6a7d-4439-919e-c02f36506801",
+          "kind": "work_item",
+          "revision": 1,
+          "createdAt": "2026-11-04T12:50:22.485Z",
+          "updatedAt": "2026-11-04T12:50:22.485Z",
+          "data": {
+            "title": "Unassigned imported task",
+            "description": "",
+            "relatedIds": [],
+            "sources": [],
+            "parentId": null,
+            "dependencies": [],
+            "sourceIdentifier": "",
+            "sourceNamespace": "",
+            "sourceStatus": "UNKNOWN",
+            "executionStatus": "unknown",
+            "acceptanceCriteria": [],
+            "owner": "",
+            "evidence": [],
+            "lastSourceRevision": ""
+          }
+        },
+        "origin": "synthetic-import-id-fixture",
+        "timestamp": "2026-11-04T12:50:22.485Z",
+        "sourceRef": ""
+      }
+    ],
+    "operations": [
+      {
+        "operationId": "id-assigned",
+        "requestHash": "8b5773c27074bc05edbcdb9eb2e16c3eba537dbfcdfd5730c30465b6061e5bbf",
+        "projectId": "d4620768-6a7d-4439-919e-c02f36506801",
+        "result": {
+          "id": "new",
+          "projectId": "d4620768-6a7d-4439-919e-c02f36506801",
+          "kind": "work_item",
+          "revision": 1,
+          "createdAt": "2026-11-04T12:50:22.485Z",
+          "updatedAt": "2026-11-04T12:50:22.485Z",
+          "data": {
+            "title": "Imported task with a reserved-looking ID",
+            "description": "",
+            "relatedIds": [],
+            "sources": [],
+            "parentId": null,
+            "dependencies": [],
+            "sourceIdentifier": "",
+            "sourceNamespace": "",
+            "sourceStatus": "UNKNOWN",
+            "executionStatus": "unknown",
+            "acceptanceCriteria": [],
+            "owner": "",
+            "evidence": [],
+            "lastSourceRevision": "",
+            "sprintId": "unassigned"
+          }
+        }
+      },
+      {
+        "operationId": "id-project",
+        "requestHash": "bd3c01f7b2717a824a315573ebec89271ac98f988e64fb935b493b44dbdb45d0",
+        "projectId": "d4620768-6a7d-4439-919e-c02f36506801",
+        "result": {
+          "id": "d4620768-6a7d-4439-919e-c02f36506801",
+          "projectId": "d4620768-6a7d-4439-919e-c02f36506801",
+          "kind": "project",
+          "revision": 1,
+          "createdAt": "2026-11-04T12:50:22.480Z",
+          "updatedAt": "2026-11-04T12:50:22.480Z",
+          "data": {
+            "name": "Synthetic imported identifiers",
+            "description": "",
+            "goals": [],
+            "lifecycle": "idea",
+            "repository": "",
+            "branch": "",
+            "observedCommit": "",
+            "sources": []
+          }
+        }
+      },
+      {
+        "operationId": "id-sprint",
+        "requestHash": "6b777ca4949d71800bb839e302b64238f4b9de532dfb8d1ec39b8f2b41138b4a",
+        "projectId": "d4620768-6a7d-4439-919e-c02f36506801",
+        "result": {
+          "id": "unassigned",
+          "projectId": "d4620768-6a7d-4439-919e-c02f36506801",
+          "kind": "sprint",
+          "revision": 1,
+          "createdAt": "2026-11-04T12:50:22.483Z",
+          "updatedAt": "2026-11-04T12:50:22.483Z",
+          "data": {
+            "title": "Recorded imported milestone",
+            "description": "",
+            "relatedIds": [],
+            "sources": [],
+            "goal": ""
+          }
+        }
+      },
+      {
+        "operationId": "id-unassigned",
+        "requestHash": "dc579e4d8a67735bc1da5ed0217b5702f88e2e520f1096ad66580c16b3cf4bff",
+        "projectId": "d4620768-6a7d-4439-919e-c02f36506801",
+        "result": {
+          "id": "a123e5fb-ad78-40b4-bb94-e63ecef60638",
+          "projectId": "d4620768-6a7d-4439-919e-c02f36506801",
+          "kind": "work_item",
+          "revision": 1,
+          "createdAt": "2026-11-04T12:50:22.485Z",
+          "updatedAt": "2026-11-04T12:50:22.485Z",
+          "data": {
+            "title": "Unassigned imported task",
+            "description": "",
+            "relatedIds": [],
+            "sources": [],
+            "parentId": null,
+            "dependencies": [],
+            "sourceIdentifier": "",
+            "sourceNamespace": "",
+            "sourceStatus": "UNKNOWN",
+            "executionStatus": "unknown",
+            "acceptanceCriteria": [],
+            "owner": "",
+            "evidence": [],
+            "lastSourceRevision": ""
+          }
+        }
+      }
+    ],
+    "importHistory": []
+  }
+}

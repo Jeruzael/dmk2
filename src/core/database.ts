@@ -18,6 +18,12 @@ export const migrations = [
   CREATE TRIGGER imports_immutable_delete BEFORE DELETE ON imports BEGIN SELECT RAISE(ABORT, 'Import events are immutable'); END;
 `,
   },
+  {
+    version: 2,
+    // Domain additions live in validated JSON. Mark compatibility explicitly;
+    // never add defaults to, or rewrite, immutable v1 snapshots and events.
+    sql: "-- Work contract v2: optional planning fields, structured checklists and sprint records.\n",
+  },
 ];
 export class WorkspaceDatabase {
   readonly db: DatabaseSync;

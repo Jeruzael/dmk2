@@ -1,4 +1,4 @@
-# Phase 1 architecture
+# DMK2 architecture
 
 ```text
 Local AI client ── MCP stdio ── independent Node process ─┐
@@ -10,20 +10,20 @@ There is no mandatory HTTP backend, cloud service, authentication system or prov
 
 ## Directory responsibilities
 
-| Path                   | Responsibility                                                |
-| ---------------------- | ------------------------------------------------------------- |
-| `src/core/schema.ts`   | Strict Zod tool/domain/package contracts and defaults         |
-| `src/core/database.ts` | Versioned migrations, lock acquisition, transactions          |
-| `src/core/service.ts`  | Shared validation, revision checks, reads/mutations/receipts  |
-| `src/core/package.ts`  | Canonical JSON checksum, history replay, graph validation     |
-| `src/core/paths.ts`    | Identical platform data location for UI and MCP               |
-| `src/mcp/server.ts`    | Official SDK tool registry and stdio transport                |
-| `src/electron/`        | Sandboxed window, allowlisted IPC, native package dialogs     |
-| `src/ui/`              | Six React views, structured editor, Markdown and history      |
-| `schemas/`             | Public JSON Schema package and per-kind data contracts        |
-| `scripts/`             | Config generation, protocol connection test, synthetic sample |
-| `tests/`               | Service, real stdio and real Electron acceptance              |
-| `dist-node/`, `dist/`  | Ignored build outputs; main/preload/MCP and renderer          |
+| Path                   | Responsibility                                                     |
+| ---------------------- | ------------------------------------------------------------------ |
+| `src/core/schema.ts`   | Strict Zod tool/domain/package contracts and defaults              |
+| `src/core/database.ts` | Versioned migrations, lock acquisition, transactions               |
+| `src/core/service.ts`  | Shared validation, revision checks, reads/mutations/receipts       |
+| `src/core/package.ts`  | Canonical JSON checksum, history replay, graph validation          |
+| `src/core/paths.ts`    | Identical platform data location for UI and MCP                    |
+| `src/mcp/server.ts`    | Official SDK tool registry and stdio transport                     |
+| `src/electron/`        | Sandboxed window, allowlisted IPC, native package dialogs          |
+| `src/ui/`              | Six workspace pages, five work tabs, editors, Markdown and history |
+| `schemas/`             | Public JSON Schema package and per-kind data contracts             |
+| `scripts/`             | Config generation, protocol connection test, synthetic sample      |
+| `tests/`               | Service, real stdio and real Electron acceptance                   |
+| `dist-node/`, `dist/`  | Ignored build outputs; main/preload/MCP and renderer               |
 
 ## SQLite schema and migration strategy
 
@@ -51,7 +51,7 @@ WAL and `synchronous=FULL` provide durable commits with concurrent readers. Writ
 
 ## Portable package
 
-`.dmk2` is UTF-8 structured JSON, not an archive or executable. See [`schemas/dmk2-v1.schema.json`](../schemas/dmk2-v1.schema.json), per-kind schemas and the authoritative runtime validators.
+`.dmk2` is UTF-8 structured JSON, not an archive or executable. The original format is described below; see [`schemas/dmk2-v1.schema.json`](../schemas/dmk2-v1.schema.json), [`schemas/dmk2-v2.schema.json`](../schemas/dmk2-v2.schema.json), per-kind schemas and the authoritative runtime validators.
 
 ```text
 format: "dmk2"
@@ -70,6 +70,22 @@ Canonicalization sorts object keys recursively, preserves array order and uses J
 Import preserves original project events byte-for-value as JSON. A new custody event in `importHistory` records the import itself without changing the original project event sequence. Its `projectSequence` identifies the last project event in the imported source. The validator reconstructs that earlier package (including earlier custody events), checks its checksum and binds the custody retry hash to the full original import request before restoring it as a retry receipt. Subsequent exports carry the prior custody events and retry hashes. Round-trip equality compares original records, revisions, project events and receipts; there is intentionally one additional import event per successful import. Import history sequences are project-scoped and separate from project-mutation sequences.
 
 All validation precedes the first insert, then all inserts and the new import receipt/event commit atomically. Constraint errors also roll back the transaction. Existing projects are never replaced. Desktop imports are limited to 64 MiB; document content to 100,000 characters; arrays have schema bounds. MCP export/import exchange JSON values only and never read/write arbitrary paths. Native desktop dialogs grant bounded package file access. Export uses a consistent read transaction and atomic destination-file replacement; export itself makes no database mutation.
+
+## Phase 1.2 contract version 2
+
+Application 0.2.0 appends migration 2, an additive domain-contract marker. The table layout and released migration 1 are unchanged. Opening a v1 database advances `user_version` to 2 without rewriting snapshots, project events, imports or operation receipts. This prevents older binaries from opening a database whose newer records they cannot understand. Upgrade reading is supported; downgrade writing with a v1 binary is not.
+
+Work-item `priority`, `risk`, nullable `sprintId` and structured `checklist` are optional and deliberately have no parse-time defaults. Their absence must remain absence so old snapshots, before/after replay and normalized request hashes remain exact. A new `sprint` record has the existing record envelope, a goal and optional dates; same-project references and date ordering are validated. All writes still use the shared revision-checked transaction path.
+
+Exports use package `schemaVersion: 2`; imports accept 1 or 2. Format 1 rejects v2 planning fields, sprint records and new custody metadata, including inside reconstructed custody source packages. Each new custody event records its source `packageVersion`; original custody events without that property mean format 1. Source reconstruction therefore uses the actual historical format when checking both package checksums and idempotency hashes. No historical snapshots or operation hashes are regenerated during upgrade. The published v1 JSON Schema remains unchanged.
+
+Synthetic regressions cover exact v1 database values, authentic v1 exports with prior import custody, subsequent v2 edits, another export/import, version downgrade forgery, invalid references and stale revisions. See [delivery evidence](structured-workspace.md).
+
+## Work Management renderer
+
+`src/ui/work/` contains shared selectors, five views and a revision-safe task drawer. All tabs consume the same current entities; per-project session state remembers filters, sorting and the selected tab. Board renders 50 cards per column initially, WBS uses an iterative outline with 100-row increments, Backlog pages 50 rows, and Checklists pages 20 groups. These limits bound rendering; they do not cap stored records. The desktop acceptance fixture contains 500 tasks.
+
+The drawer preserves drafts across refreshes, detects stale revisions and offers explicit reload or three-way reconciliation. Checklist toggles use ordinary `save_work_item` operations and do not modify execution status, acceptance criteria or verification evidence. Untouched array text is preserved verbatim. Discriminated UI selections and reserved filter values cannot collide with legal imported IDs. Record history loads newest-first in bounded pages, while SQL search can still find older events.
 
 ## Renderer boundary
 

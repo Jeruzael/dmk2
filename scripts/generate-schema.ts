@@ -7,7 +7,8 @@ import {
 } from "../src/core/schema.js";
 mkdirSync("schemas", { recursive: true });
 for (const [name, schema] of Object.entries({
-  "dmk2-v1": packageSchema,
+  // The published v1 structural schema stays unchanged.
+  "dmk2-v2": packageSchema.extend({ schemaVersion: z.literal(2) }),
   project: projectData,
   ...recordSchemas,
 }))

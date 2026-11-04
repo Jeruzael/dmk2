@@ -1,13 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type {
-  ChangeEvent,
-  Entity,
-  RecordKind,
-  ToolName,
-} from "../core/schema.js";
+import type { Entity, RecordKind, ToolName } from "../core/schema.js";
 import { execute, unwrap } from "./bridge.js";
 import { Editor } from "./Editor.js";
 import { Fields, HistoryList, RecordCard, SafeMarkdown } from "./Records.js";
+import { WorkManagement } from "./work/WorkManagement.js";
+import { useHistory } from "./useHistory.js";
+import { RecordHistory } from "./RecordHistory.js";
 const views = [
   "Overview",
   "Plan & WBS",
@@ -26,16 +24,18 @@ const saveTools: Record<RecordKind, ToolName> = {
   document: "save_document",
   architecture: "save_architecture",
   risk: "save_risk",
+  sprint: "save_sprint",
 };
 const additions: Record<View, RecordKind[]> = {
   Overview: ["requirement"],
-  "Plan & WBS": ["work_item", "requirement"],
+  "Plan & WBS": ["requirement"],
   Documents: ["document"],
   "Decisions & Questions": ["question", "decision"],
   "Security & Architecture": ["architecture", "risk", "requirement"],
   Activity: [],
 };
 type Summary = {
+  latestSequence: number;
   counts: Record<string, number>;
   executionStatus: Record<string, number>;
   unresolvedQuestions: Entity[];
@@ -53,7 +53,6 @@ export function App() {
   const [projectId, setProjectId] = useState("");
   const [project, setProject] = useState<Entity>();
   const [records, setRecords] = useState<Entity[]>([]);
-  const [events, setEvents] = useState<ChangeEvent[]>([]);
   const [summary, setSummary] = useState<Summary>();
   const [view, setView] = useState<View>("Overview");
   const [search, setSearch] = useState("");
@@ -66,12 +65,17 @@ export function App() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(true);
-  const current = useRef(projectId);
-  current.current = projectId;
-  const historyCache = useRef<{ projectId: string; events: ChangeEvent[] }>({
-    projectId: "",
-    events: [],
+  const historyFeed = useHistory(projectId, {
+    search: view === "Activity" ? search : "",
+    revision: summary?.latestSequence,
   });
+  const events = historyFeed.events;
+  const current = useRef(projectId);
+  const workLeaveGuard = useRef<() => boolean>(() => true);
+  const setWorkLeaveGuard = useCallback((guard: () => boolean) => {
+    workLeaveGuard.current = guard;
+  }, []);
+  current.current = projectId;
   const loadProjects = useCallback(async () => {
     const list = await execute<Entity[]>("list_projects");
     setProjects(list);
@@ -84,28 +88,10 @@ export function App() {
       execute<Entity[]>("list_records", { projectId }),
       execute<Summary>("get_summary", { projectId }),
     ]);
-    // Page through every recorded event; no 4,096-entry cap or silent truncation.
-    const all: ChangeEvent[] =
-      historyCache.current.projectId === projectId
-        ? [...historyCache.current.events]
-        : [];
-    let afterSequence = all.at(-1)?.sequence ?? 0;
-    for (;;) {
-      const page = await execute<ChangeEvent[]>("get_history", {
-        projectId,
-        afterSequence,
-        limit: 1000,
-      });
-      all.push(...page);
-      if (page.length < 1000) break;
-      afterSequence = page.at(-1)!.sequence;
-    }
     if (current.current === projectId) {
-      historyCache.current = { projectId, events: all };
       setProject(p);
       setRecords(r);
       setSummary(s);
-      setEvents(all);
     }
   }, [projectId]);
   useEffect(() => {
@@ -116,7 +102,6 @@ export function App() {
   useEffect(() => {
     setProject(undefined);
     setRecords([]);
-    setEvents([]);
     setSummary(undefined);
     setSearch("");
     setSelectedDoc("");
@@ -204,24 +189,15 @@ export function App() {
         text="Your agent can organize this area through MCP, or you can add a record above."
       />
     );
-  const wbs = (parent: string | null, depth = 0): React.ReactNode =>
-    filtered
-      .filter((r) => r.kind === "work_item" && r.data.parentId === parent)
-      .map((r) => (
-        <div
-          key={r.id}
-          className="wbs-node"
-          style={{ marginLeft: depth ? 16 : 0 }}
-        >
-          <RecordCard
-            record={r}
-            records={records}
-            edit={(entity) => setEditing({ kind: "work_item", entity })}
-            history={setHistory}
-          />
-          {wbs(r.id, depth + 1)}
-        </div>
-      ));
+  const workChanged = async (entity?: Entity) => {
+    if (entity)
+      setRecords((old) =>
+        old.some((r) => r.id === entity.id)
+          ? old.map((r) => (r.id === entity.id ? entity : r))
+          : [...old, entity],
+      );
+    await refresh();
+  };
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -242,7 +218,9 @@ export function App() {
           <select
             aria-label="Select project"
             value={projectId}
-            onChange={(e) => setProjectId(e.target.value)}
+            onChange={(e) => {
+              if (workLeaveGuard.current()) setProjectId(e.target.value);
+            }}
           >
             {!projects.length && <option value="">No projects yet</option>}
             {projects.map((p) => (
@@ -301,7 +279,9 @@ export function App() {
             </button>
           </div>
         </header>
-        <div className="content">
+        <div
+          className={`content ${view === "Plan & WBS" ? "work-content" : ""}`}
+        >
           {error && (
             <div className="error banner" role="alert">
               {error}
@@ -375,7 +355,7 @@ export function App() {
                   ))}
                 </div>
               </div>
-              {view !== "Overview" && (
+              {view !== "Overview" && view !== "Plan & WBS" && (
                 <input
                   className="search"
                   aria-label={
@@ -486,28 +466,21 @@ export function App() {
                   <section className="section">
                     <h2>Recent activity</h2>
                     <HistoryList
-                      events={events.slice(-5).reverse()}
+                      events={events.slice(0, 5)}
                       records={records}
                     />
                   </section>
                 </>
               )}
-              {view === "Plan & WBS" && (
-                <>
-                  {search ? (
-                    cards(filtered.filter((r) => r.kind === "work_item"))
-                  ) : records.some((r) => r.kind === "work_item") ? (
-                    <div className="wbs">{wbs(null)}</div>
-                  ) : (
-                    <Empty
-                      title="Start with one work item"
-                      text="A WBS is optional. Add standalone tasks now and organize a hierarchy when it helps."
-                    />
-                  )}
-                  <h2 className="section">Requirements</h2>
-                  {cards(filtered.filter((r) => r.kind === "requirement"))}
-                </>
-              )}
+              <div hidden={view !== "Plan & WBS"}>
+                <WorkManagement
+                  key={project.id}
+                  project={project}
+                  records={records}
+                  onChanged={workChanged}
+                  onLeaveGuardChange={setWorkLeaveGuard}
+                />
+              </div>
               {view === "Documents" &&
                 (doc ? (
                   <div className="documents-layout">
@@ -600,21 +573,31 @@ export function App() {
                     </section>
                   ))}
                   {events.length ? (
-                    <HistoryList
-                      events={events
-                        .filter((e) =>
-                          JSON.stringify(e)
-                            .toLowerCase()
-                            .includes(search.toLowerCase()),
-                        )
-                        .reverse()}
-                      records={records}
-                    />
+                    <HistoryList events={events} records={records} />
                   ) : (
                     <Empty
-                      title="The project timeline is ready"
-                      text="Every successful record change will appear here with its origin and revision."
+                      title={
+                        historyFeed.busy
+                          ? "Loading activity…"
+                          : search
+                            ? "No matching changes"
+                            : "The project timeline is ready"
+                      }
+                      text="Search covers all recorded events. Older history is loaded in pages."
                     />
+                  )}
+                  {historyFeed.error && (
+                    <p role="alert" className="error">
+                      {historyFeed.error}
+                    </p>
+                  )}
+                  {historyFeed.more && (
+                    <button
+                      onClick={historyFeed.loadMore}
+                      disabled={historyFeed.busy}
+                    >
+                      Load older activity
+                    </button>
                   )}
                 </>
               )}
@@ -632,30 +615,11 @@ export function App() {
         />
       )}
       {history && (
-        <div className="overlay">
-          <section
-            className="history-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Revision history"
-          >
-            <header>
-              <h2>
-                {String(history.data.title ?? history.data.name)} · History
-              </h2>
-              <button
-                aria-label="Close history"
-                onClick={() => setHistory(undefined)}
-              >
-                ×
-              </button>
-            </header>
-            <HistoryList
-              events={events.filter((e) => e.entityId === history.id).reverse()}
-              records={records}
-            />
-          </section>
-        </div>
+        <RecordHistory
+          entity={history}
+          records={records}
+          onClose={() => setHistory(undefined)}
+        />
       )}
     </div>
   );

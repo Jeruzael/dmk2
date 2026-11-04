@@ -54,15 +54,17 @@ Use **Export project** to save a `.dmk2` JSON package and **Import .dmk2** to re
 
 The package contains submitted project records, including full historical text. Review that text before sharing. DMK2 never collects credentials, source clones or unrelated files; it cannot identify a secret an agent explicitly pastes into a document. Local runtime data and packages are Git-ignored.
 
-## What works in Phase 1
+## What works in Phase 1.2
 
 - Six desktop views: Overview, Plan & WBS, Documents, Decisions & Questions, Security & Architecture, Activity.
-- Create/edit all record types locally or through 19 validated MCP tools.
+- Plan & WBS has Board, expandable WBS, paged Backlog, optional Sprints and grouped Checklists, sharing one task drawer and filter state.
+- Create/edit all record types locally or through 20 validated MCP tools, including `save_sprint`.
 - Atomic state, append-only before/after events and idempotency receipts; optimistic revision checks.
 - Source status separated from execution status, optional WBS, validated links and cycle checks.
 - Safe Markdown headings, tables, lists, code and internal links; revision history and search.
 - SQLite WAL, concurrent readers, serialized writers, bounded lock acquisition, versioned migrations.
 - Portable exports/imports preserving project identity, records, every revision, provenance, events and retry receipts.
+- Optional priority, risk, sprint assignments and structured checklist steps. Checklist counts remain distinct from execution, acceptance and verification evidence.
 
 DMK2 records explicit submissions. It does not automatically observe chat, Git changes, repository health or implementation completion. Confirmation is an agent-recorded claim, not identity proof.
 
@@ -76,11 +78,11 @@ npm run mcp:test
 npm audit
 ```
 
-Tests use temporary synthetic databases. The desktop smoke test launches real Electron, navigates all views, edits/restarts, checks sandboxing and untrusted Markdown, and drives export/import handlers with deterministic native dialog results. Evidence: [verification report](docs/verification.md).
+Tests use temporary synthetic databases. Real Electron tests exercise the original flows plus 500 tasks across five work views at 1024, 1366 and 1920 pixels, MCP updates, conflicts, restart, legacy packages and export/import. Native dialog results are deterministic. Evidence: [Structured Workspace delivery and screenshots](docs/structured-workspace.md) and [original Phase 1 verification](docs/verification.md).
 
 ## Structure and limits
 
-See [architecture/schema](docs/architecture.md), [integration/tool reference](docs/integration.md) and [delivery report / Phase 2](docs/delivery.md). Phase 1 is a source-launchable desktop candidate. Installers, signed distribution, Mermaid rendering, automatic repository reconciliation and large-workspace UI virtualization remain future work.
+See [architecture/schema](docs/architecture.md), [integration/tool reference](docs/integration.md), [Structured Workspace delivery](docs/structured-workspace.md) and [original delivery / Phase 2](docs/delivery.md). This remains a source-launchable desktop candidate. Installers, signed distribution, Mermaid rendering, automatic repository reconciliation and UI virtualization beyond bounded paging remain future work.
 
 ## License and provenance
 

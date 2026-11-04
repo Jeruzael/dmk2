@@ -46,6 +46,8 @@ export function validateReferences(
     if (!entities.has(ref) || entities.get(ref)?.kind === "project")
       throw new Error(`Invalid record reference: ${ref}`);
   if (entity.kind === "work_item") {
+    if (d.sprintId && entities.get(d.sprintId as string)?.kind !== "sprint")
+      throw new Error(`Invalid sprint reference: ${d.sprintId}`);
     const parent = d.parentId as string | null;
     for (const ref of [
       ...(parent ? [parent] : []),
@@ -146,11 +148,38 @@ function recordedRequest(event: ChangeEvent): unknown {
   }
   return { tool, args: toolSchemas[tool].parse(input) };
 }
+function validateContractVersion(
+  version: 1 | 2,
+  payload: ProjectPackage["payload"],
+): void {
+  const { project, records, events, operations, importHistory } = payload;
+  if (version === 1) {
+    const snapshots = [
+      project,
+      ...records,
+      ...events.flatMap((e) => (e.before ? [e.before, e.after] : [e.after])),
+      ...operations.map((o) => o.result),
+    ];
+    if (
+      snapshots.some(
+        (e) =>
+          e.kind === "sprint" ||
+          (e.kind === "work_item" &&
+            ["priority", "risk", "sprintId", "checklist"].some((k) =>
+              Object.hasOwn(e.data, k),
+            )),
+      ) ||
+      importHistory.some((e) => e.packageVersion !== undefined)
+    )
+      throw new Error("Package v1 cannot contain contract v2 fields");
+  }
+}
 export function validatePackage(input: unknown): ProjectPackage {
   const pkg = packageSchema.parse(input);
   if (hash(pkg.payload) !== pkg.checksum)
     throw new Error("Package integrity checksum mismatch");
   const { project, records, events, operations, importHistory } = pkg.payload;
+  validateContractVersion(pkg.schemaVersion, pkg.payload);
   // Stable array order is part of v1: custody hashes reconstruct earlier exports.
   if (
     records.some((r, i) => i > 0 && records[i - 1]!.id >= r.id) ||
@@ -267,7 +296,7 @@ export function validatePackage(input: unknown): ProjectPackage {
       throw new Error("Import history project mismatch");
     const sourceOperationIds = new Set(sourceEvents.map((e) => e.operationId));
     const sourcePayload = {
-      project: historicalProject,
+      project: historicalProject!,
       records: [...sourceState.values()]
         .filter((r) => r.kind !== "project")
         .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)),
@@ -285,6 +314,7 @@ export function validatePackage(input: unknown): ProjectPackage {
     };
     if (hash(sourcePayload) !== event.checksum)
       throw new Error("Invalid custody source checksum");
+    validateContractVersion(event.packageVersion ?? 1, sourcePayload);
     const request = {
       tool: "import_project",
       args: {
@@ -293,7 +323,7 @@ export function validatePackage(input: unknown): ProjectPackage {
         sourceRef: event.sourceRef,
         package: {
           format: "dmk2",
-          schemaVersion: 1,
+          schemaVersion: event.packageVersion ?? 1,
           checksum: event.checksum,
           payload: sourcePayload,
         },
