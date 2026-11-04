@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "noEmitOnError": true,
+    "outDir": "dist-node",
+    "rootDir": "src",
+    "sourceMap": true
+  },
+  "include": ["src/core/**/*.ts", "src/mcp/**/*.ts", "src/electron/**/*.ts"],
+  "exclude": ["src/ui"]
+}

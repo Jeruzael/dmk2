@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "description": {
+      "default": "",
+      "type": "string",
+      "maxLength": 100000
+    },
+    "relatedIds": {
+      "default": [],
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200,
+        "pattern": "^[a-zA-Z0-9._:-]+$"
+      }
+    },
+    "sources": {
+      "default": [],
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000
+      }
+    },
+    "classification": {
+      "default": "functional",
+      "type": "string",
+      "enum": [
+        "functional",
+        "nonfunctional",
+        "security"
+      ]
+    },
+    "statement": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100000
+    },
+    "priority": {
+      "default": "should",
+      "type": "string",
+      "enum": [
+        "must",
+        "should",
+        "could"
+      ]
+    },
+    "status": {
+      "default": "proposed",
+      "type": "string",
+      "enum": [
+        "proposed",
+        "accepted",
+        "implemented",
+        "verified",
+        "deferred"
+      ]
+    },
+    "acceptanceCriteria": {
+      "default": [],
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000
+      }
+    },
+    "tests": {
+      "default": [],
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000
+      }
+    }
+  },
+  "required": [
+    "title",
+    "statement"
+  ],
+  "additionalProperties": false
+}

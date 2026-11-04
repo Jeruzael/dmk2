@@ -1,0 +1,7 @@
+node_modules
+dist
+dist-node
+test-results
+package-lock.json
+LICENSE
+schemas
