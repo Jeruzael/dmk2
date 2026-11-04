@@ -56,7 +56,7 @@ Files: focused MCP/Electron tests, `docs/structured-workspace.md`, synthetic scr
 - [x] Exercise MCP↔desktop edits, conflicts/retries, legacy state, restart and mixed-format package round trips.
 - [x] Exercise 500 tasks, keyboard/focus/dirty close, all five views and target widths; capture synthetic screenshots only.
 - [x] Run existing applicable checks, production build, MCP connection test, formatting and audit; obtain independent final review and fix material findings.
-- [ ] Commit/push feature branch; open Draft PR against master; report exact commit and remaining limitations. Do not merge.
+- [x] Commit/push feature branch; open Draft PR against master; report exact commit and remaining limitations. Do not merge.
 
 ## Ledger
 
@@ -66,3 +66,4 @@ Files: focused MCP/Electron tests, `docs/structured-workspace.md`, synthetic scr
 - Review found three integrity issues (untouched text normalization, imported-ID UI collisions, and forged legacy custody format claims). Focused regressions reproduce each; fixes pass independent review. Screenshot review also corrected compressed Board cards with a geometry assertion.
 - Fresh production checks pass 29 core/MCP/render tests and four real Electron tests. Synthetic 500-task responsive screenshots and delivery evidence are in `docs/structured-workspace.md`.
 - Lockfile reinstall, 20-tool stdio connection test, formatting and audit pass. A fresh-install desktop rerun exposed a test-only assumption about initial project ordering; restart now explicitly selects the fixture project before checking durable state.
+- Published implementation commit `e59928203b13f558a123019f051017d7cde9b9dc` on the dedicated branch and opened [Draft PR #2](https://github.com/Jeruzael/dmk2/pull/2) against unchanged `master`. Final publication head is reported in chat; no merge requested or performed.
