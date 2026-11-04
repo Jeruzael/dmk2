@@ -1,0 +1,147 @@
+{
+  "description": "Synthetic declarative onboarding scenarios. These are fixtures for static contract checks, not executed AI-model or end-to-end MCP evaluations.",
+  "scenarios": [
+    {
+      "id": "greenfield",
+      "mode": "new-idea",
+      "existingProject": false,
+      "sourceAccess": false,
+      "explicitCreateAuthorization": true,
+      "observedCommit": null,
+      "candidateRecords": [
+        {
+          "kind": "project",
+          "action": "create",
+          "evidence": "user-decision"
+        },
+        {
+          "kind": "question",
+          "action": "defer",
+          "evidence": "unknown"
+        }
+      ],
+      "expected": {
+        "createProject": true,
+        "duplicateCreates": 0,
+        "verifySecurity": false,
+        "sourceInspectionClaim": false,
+        "needsUserReviewForBulkRecords": true
+      }
+    },
+    {
+      "id": "existing-repository",
+      "mode": "existing-repository",
+      "existingProject": false,
+      "sourceAccess": true,
+      "explicitCreateAuthorization": true,
+      "observedCommit": "1111111111111111111111111111111111111111",
+      "candidateRecords": [
+        {
+          "kind": "project",
+          "action": "create",
+          "evidence": "observed"
+        },
+        {
+          "kind": "requirement",
+          "classification": "security",
+          "action": "defer",
+          "evidence": "proposal"
+        }
+      ],
+      "expected": {
+        "createProject": true,
+        "duplicateCreates": 0,
+        "verifySecurity": false,
+        "sourceInspectionClaim": true,
+        "needsUserReviewForBulkRecords": true
+      }
+    },
+    {
+      "id": "partial-import",
+      "mode": "partial-workspace",
+      "existingProject": true,
+      "sourceAccess": true,
+      "explicitCreateAuthorization": false,
+      "observedCommit": "2222222222222222222222222222222222222222",
+      "candidateRecords": [
+        {
+          "kind": "project",
+          "action": "reuse",
+          "evidence": "observed"
+        },
+        {
+          "kind": "requirement",
+          "classification": "security",
+          "action": "defer",
+          "evidence": "source-claim"
+        },
+        {
+          "kind": "risk",
+          "action": "reuse",
+          "evidence": "source-claim"
+        }
+      ],
+      "expected": {
+        "createProject": false,
+        "duplicateCreates": 0,
+        "verifySecurity": false,
+        "sourceInspectionClaim": true,
+        "needsUserReviewForBulkRecords": true
+      }
+    },
+    {
+      "id": "conflicting-records",
+      "mode": "conflict",
+      "existingProject": true,
+      "sourceAccess": true,
+      "explicitCreateAuthorization": false,
+      "observedCommit": null,
+      "candidateRecords": [
+        {
+          "kind": "project",
+          "action": "reuse",
+          "evidence": "observed"
+        },
+        {
+          "kind": "work_item",
+          "action": "conflict",
+          "evidence": "source-claim"
+        }
+      ],
+      "expected": {
+        "createProject": false,
+        "duplicateCreates": 0,
+        "verifySecurity": false,
+        "sourceInspectionClaim": false,
+        "needsUserReviewForBulkRecords": true
+      }
+    },
+    {
+      "id": "repeat-onboarding",
+      "mode": "repeat",
+      "existingProject": true,
+      "sourceAccess": true,
+      "explicitCreateAuthorization": false,
+      "observedCommit": "3333333333333333333333333333333333333333",
+      "candidateRecords": [
+        {
+          "kind": "project",
+          "action": "reuse",
+          "evidence": "observed"
+        },
+        {
+          "kind": "work_item",
+          "action": "reuse",
+          "evidence": "observed"
+        }
+      ],
+      "expected": {
+        "createProject": false,
+        "duplicateCreates": 0,
+        "verifySecurity": false,
+        "sourceInspectionClaim": true,
+        "needsUserReviewForBulkRecords": false
+      }
+    }
+  ]
+}
