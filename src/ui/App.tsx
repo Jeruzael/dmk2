@@ -6,6 +6,11 @@ import { Fields, HistoryList, RecordCard, SafeMarkdown } from "./Records.js";
 import { WorkManagement } from "./work/WorkManagement.js";
 import { useHistory } from "./useHistory.js";
 import { RecordHistory } from "./RecordHistory.js";
+import {
+  Overview,
+  type IntelligenceDestination,
+} from "./intelligence/Overview.js";
+import { RecordDetails } from "./intelligence/RecordDetails.js";
 const views = [
   "Overview",
   "Plan & WBS",
@@ -62,6 +67,8 @@ export function App() {
     entity?: Entity;
   }>();
   const [history, setHistory] = useState<Entity>();
+  const [detailId, setDetailId] = useState<string>();
+  const [workOpen, setWorkOpen] = useState<{ id: string; nonce: number }>();
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(true);
@@ -105,6 +112,8 @@ export function App() {
     setSummary(undefined);
     setSearch("");
     setSelectedDoc("");
+    setDetailId(undefined);
+    setWorkOpen(undefined);
     refresh().catch((e) => setError(e.message));
     const timer = setInterval(() => {
       refresh().catch((e) => setError(e.message));
@@ -189,6 +198,31 @@ export function App() {
         text="Your agent can organize this area through MCP, or you can add a record above."
       />
     );
+  const openRecord = (entity: Entity) => {
+    if (entity.kind === "work_item") {
+      setDetailId(undefined);
+      setView("Plan & WBS");
+      setWorkOpen({ id: entity.id, nonce: Date.now() });
+    } else setDetailId(entity.id);
+  };
+  const navigateIntelligence = (destination: IntelligenceDestination) => {
+    setSearch("");
+    setView(
+      (
+        {
+          work: "Plan & WBS",
+          documents: "Documents",
+          questions: "Decisions & Questions",
+          decisions: "Decisions & Questions",
+          security: "Security & Architecture",
+        } as const
+      )[destination],
+    );
+  };
+  const detail =
+    detailId === project?.id
+      ? project
+      : records.find((record) => record.id === detailId);
   const workChanged = async (entity?: Entity) => {
     if (entity)
       setRecords((old) =>
@@ -326,8 +360,7 @@ export function App() {
                   </h1>
                   <p>
                     {view === "Overview"
-                      ? String(project.data.description) ||
-                        "Add your vision. Build the plan as you learn."
+                      ? "Project intelligence from recorded facts, source observations and work evidence."
                       : descriptions[view]}
                   </p>
                 </div>
@@ -371,106 +404,15 @@ export function App() {
                 />
               )}
               {view === "Overview" && summary && (
-                <>
-                  <div className="stats">
-                    {[
-                      ["Requirements", summary.counts.requirement],
-                      ["Decisions", summary.counts.decision],
-                      ["Open questions", summary.unresolvedQuestions.length],
-                      ["Blockers", summary.blockers.length],
-                    ].map(([label, value]) => (
-                      <section key={label}>
-                        <span>{label}</span>
-                        <strong>{value}</strong>
-                      </section>
-                    ))}
-                  </div>
-                  <div className="overview-grid">
-                    <section className="panel">
-                      <h2>Project context</h2>
-                      <span className="badge">
-                        {String(project.data.lifecycle)}
-                      </span>
-                      <Fields
-                        data={{
-                          goals: project.data.goals,
-                          repository:
-                            project.data.repository || "Not connected",
-                          branch: project.data.branch || "Not recorded",
-                          observedCommit:
-                            project.data.observedCommit || "Not observed",
-                          sources: project.data.sources,
-                        }}
-                        records={records}
-                      />
-                      <small>
-                        Source facts are explicitly recorded by agents or the
-                        local app.
-                      </small>
-                    </section>
-                    <section className="panel">
-                      <h2>Work in view</h2>
-                      {Object.keys(summary.executionStatus).length ? (
-                        Object.entries(summary.executionStatus).map(
-                          ([status, n]) => (
-                            <div className="status-row" key={status}>
-                              <span className={`badge ${status}`}>
-                                {status}
-                              </span>
-                              <strong>{n}</strong>
-                            </div>
-                          ),
-                        )
-                      ) : (
-                        <p className="muted">No work items recorded yet.</p>
-                      )}
-                      <p className="caption">
-                        Source labels are shown separately in Plan &amp; WBS.
-                      </p>
-                    </section>
-                    <section className="panel">
-                      <h2>Unresolved questions</h2>
-                      {summary.unresolvedQuestions.length ? (
-                        summary.unresolvedQuestions.map((q) => (
-                          <div className="compact-row" key={q.id}>
-                            <strong>{String(q.data.title)}</strong>
-                            <span className="badge">
-                              {String(q.data.state)}
-                            </span>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="muted">
-                          No unresolved questions recorded.
-                        </p>
-                      )}
-                    </section>
-                    <section className="panel">
-                      <h2>Current blockers</h2>
-                      {summary.blockers.length ? (
-                        summary.blockers.map((r) => (
-                          <div key={r.id}>
-                            <h3>{String(r.data.title)}</h3>
-                            <p>{String(r.data.description)}</p>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="muted">No blockers recorded.</p>
-                      )}
-                    </section>
-                  </div>
-                  <section className="section">
-                    <h2>Requirements</h2>
-                    {cards(records.filter((r) => r.kind === "requirement"))}
-                  </section>
-                  <section className="section">
-                    <h2>Recent activity</h2>
-                    <HistoryList
-                      events={events.slice(0, 5)}
-                      records={records}
-                    />
-                  </section>
-                </>
+                <Overview
+                  key={project.id}
+                  project={project}
+                  records={records}
+                  summary={summary}
+                  events={events}
+                  onOpen={openRecord}
+                  onNavigate={navigateIntelligence}
+                />
               )}
               <div hidden={view !== "Plan & WBS"}>
                 <WorkManagement
@@ -479,6 +421,7 @@ export function App() {
                   records={records}
                   onChanged={workChanged}
                   onLeaveGuardChange={setWorkLeaveGuard}
+                  openRequest={workOpen}
                 />
               </div>
               {view === "Documents" &&
@@ -605,6 +548,17 @@ export function App() {
           )}
         </div>
       </main>
+      {detail && (
+        <RecordDetails
+          record={detail}
+          records={records}
+          onClose={() => setDetailId(undefined)}
+          onOpen={openRecord}
+          onEdit={(entity) =>
+            setEditing({ kind: entity.kind as RecordKind | "project", entity })
+          }
+        />
+      )}
       {editing && (
         <Editor
           key={`${editing.kind}-${editing.entity?.id ?? "new"}`}

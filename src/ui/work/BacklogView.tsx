@@ -1,5 +1,6 @@
 import type { Entity } from "../../core/schema.js";
 import { workData } from "./model.js";
+import { compactSourceStatus } from "./source-status.js";
 import {
   Pagination,
   StatusBadge,
@@ -94,8 +95,8 @@ export function BacklogView({
                     <StatusBadge status={d.executionStatus} />
                   </td>
                   <td>
-                    <span className="work-source-chip">
-                      {d.sourceStatus || "Not set"}
+                    <span className="work-source-chip" title={d.sourceStatus}>
+                      {compactSourceStatus(d.sourceStatus)}
                     </span>
                   </td>
                   <td title={name(d.sprintId)}>{name(d.sprintId)}</td>

@@ -306,6 +306,12 @@
   border-color: #d5eadd;
 }
 .work-source-chip {
+  display: inline-block;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
   font-size: 12px;
   color: #728095;
   border: 1px dashed #dbe2ec;
@@ -471,6 +477,7 @@
   border-bottom: 1px solid #dfe7f0;
 }
 .work-table td {
+  min-width: 0;
   font-size: 13px;
   padding: 14px 15px;
   border-bottom: 1px solid #edf1f6;
@@ -487,21 +494,21 @@
 }
 .work-table th:first-child,
 .work-table td:first-child {
-  width: 35%;
+  width: 32%;
   min-width: 320px;
 }
 .work-table th:nth-child(2) {
-  width: 15%;
+  width: 14%;
 }
 .work-table th:nth-child(3),
 .work-table th:nth-child(4) {
-  width: 8%;
+  width: 7%;
 }
 .work-table th:nth-child(5) {
   width: 13%;
 }
 .work-table th:nth-child(6) {
-  width: 11%;
+  width: 13%;
 }
 .work-table th:nth-child(7) {
   width: 14%;
