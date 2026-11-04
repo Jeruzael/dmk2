@@ -21,6 +21,8 @@ import { randomUUID } from "node:crypto";
 import { WorkspaceService } from "../core/service.js";
 import { dataDirectory, databasePath } from "../core/paths.js";
 import { id, toolSchemas, type ToolName } from "../core/schema.js";
+import { RepositoryLibrary } from "../repository/library.js";
+import { repositoryRequestSchema } from "../repository/schema.js";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
 const indexPath = join(root, "dist", "index.html");
@@ -31,6 +33,7 @@ app.setPath("userData", userData);
 if (!app.requestSingleInstanceLock()) app.quit();
 else {
   let service: WorkspaceService;
+  let repositoryLibrary: RepositoryLibrary;
   let window: BrowserWindow | null = null;
   const checkSender = (event: IpcMainInvokeEvent): void => {
     if (
@@ -61,6 +64,7 @@ else {
     .whenReady()
     .then(() => {
       service = new WorkspaceService(databasePath());
+      repositoryLibrary = new RepositoryLibrary(databasePath());
       Menu.setApplicationMenu(null);
       session.defaultSession.setPermissionRequestHandler(
         (_wc, _permission, callback) => callback(false),
@@ -83,6 +87,31 @@ else {
           throw new Error("Unsupported desktop operation");
         return service.execute(name as ToolName, args);
       });
+      handle(
+        "dmk2:repository",
+        async (_event, action: unknown, input: unknown) => {
+          const request = repositoryRequestSchema.parse({
+            action,
+            args: input,
+          });
+          if (request.action === "get")
+            return repositoryLibrary.describe(request.args.projectId);
+          if (request.action === "read")
+            return repositoryLibrary.read(request.args);
+          if (request.action === "refresh")
+            return repositoryLibrary.refresh(request.args);
+          if (request.action === "history")
+            return repositoryLibrary.history(request.args);
+          const replay = repositoryLibrary.replayConnection(request.args);
+          if (replay) return replay;
+          const selected = await dialog.showOpenDialog(window!, {
+            title: "Choose a local Git repository (read-only)",
+            properties: ["openDirectory"],
+          });
+          if (selected.canceled || !selected.filePaths[0]) return null;
+          return repositoryLibrary.connect(request.args, selected.filePaths[0]);
+        },
+      );
       handle("dmk2:export", async (_event, projectId: unknown) => {
         const validId = id.parse(projectId);
         const project = service.execute("get_project", {
@@ -177,5 +206,8 @@ else {
   app.on("window-all-closed", () => {
     if (process.platform !== "darwin") app.quit();
   });
-  app.on("will-quit", () => service?.close());
+  app.on("will-quit", () => {
+    repositoryLibrary?.close();
+    service?.close();
+  });
 }

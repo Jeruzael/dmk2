@@ -5,11 +5,17 @@ import {
   projectData,
   recordSchemas,
 } from "../src/core/schema.js";
+import {
+  repositorySnapshotSchema,
+  repositoryRequestSchema,
+} from "../src/repository/schema.js";
 mkdirSync("schemas", { recursive: true });
 for (const [name, schema] of Object.entries({
   // The published v1 structural schema stays unchanged.
   "dmk2-v2": packageSchema.extend({ schemaVersion: z.literal(2) }),
   project: projectData,
+  "repository-index": repositorySnapshotSchema,
+  "repository-desktop-request": repositoryRequestSchema,
   ...recordSchemas,
 }))
   writeFileSync(

@@ -1,0 +1,227 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[a-zA-Z0-9._:-]+$"
+    },
+    "revision": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "root": {
+      "type": "string",
+      "maxLength": 8192
+    },
+    "ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$"
+    },
+    "branch": {
+      "type": "string",
+      "maxLength": 4096
+    },
+    "commit": {
+      "type": "string",
+      "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+    },
+    "observedAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+    },
+    "counts": {
+      "type": "object",
+      "properties": {
+        "eligible": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "indexed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "skipped": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "unavailable": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "eligible",
+        "indexed",
+        "skipped",
+        "unavailable"
+      ],
+      "additionalProperties": false
+    },
+    "entries": {
+      "maxItems": 50000,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "maxLength": 4096
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 4096
+          },
+          "titleBasis": {
+            "type": "string",
+            "enum": [
+              "heading prefix",
+              "filename"
+            ]
+          },
+          "folder": {
+            "type": "string",
+            "maxLength": 4096
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "Architecture",
+              "Planning",
+              "Tracking",
+              "Walkthroughs",
+              "Guides",
+              "Drafts",
+              "General"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "canonical",
+              "draft",
+              "archived",
+              "unknown"
+            ]
+          },
+          "statusBasis": {
+            "type": "string",
+            "enum": [
+              "path marker",
+              "unknown"
+            ]
+          },
+          "blobId": {
+            "type": "string",
+            "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+          },
+          "byteSize": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "path",
+          "title",
+          "folder",
+          "category",
+          "status",
+          "statusBasis",
+          "blobId",
+          "byteSize"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "issues": {
+      "maxItems": 50000,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "maxLength": 8192
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "skipped",
+              "unavailable"
+            ]
+          }
+        },
+        "required": [
+          "path",
+          "reason",
+          "kind"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "changes": {
+      "type": "object",
+      "properties": {
+        "added": {
+          "maxItems": 50000,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 4096
+          }
+        },
+        "changed": {
+          "maxItems": 50000,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 4096
+          }
+        },
+        "removed": {
+          "maxItems": 50000,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 4096
+          }
+        }
+      },
+      "required": [
+        "added",
+        "changed",
+        "removed"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "projectId",
+    "revision",
+    "root",
+    "ref",
+    "branch",
+    "commit",
+    "observedAt",
+    "counts",
+    "entries",
+    "issues",
+    "changes"
+  ],
+  "additionalProperties": false
+}

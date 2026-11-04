@@ -2,16 +2,18 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Entity, RecordKind, ToolName } from "../core/schema.js";
 import { execute, unwrap } from "./bridge.js";
 import { Editor } from "./Editor.js";
-import { Fields, HistoryList, SafeMarkdown } from "./Records.js";
+import { HistoryList } from "./Records.js";
 import { WorkManagement } from "./work/WorkManagement.js";
 import { useHistory } from "./useHistory.js";
 import { RecordHistory } from "./RecordHistory.js";
 import {
   Overview,
   type IntelligenceDestination,
+  type OverviewSummary,
 } from "./intelligence/Overview.js";
 import { RecordDetails } from "./intelligence/RecordDetails.js";
 import { RecordWorkspace } from "./intelligence/RecordWorkspace.js";
+import { DocumentWorkspace } from "./documents/DocumentWorkspace.js";
 const views = [
   "Overview",
   "Plan & WBS",
@@ -41,6 +43,7 @@ const additions: Record<View, RecordKind[]> = {
   Activity: [],
 };
 type Summary = {
+  repositoryObservation?: OverviewSummary["repositoryObservation"];
   latestSequence: number;
   counts: Record<string, number>;
   executionStatus: Record<string, number>;
@@ -62,7 +65,6 @@ export function App() {
   const [summary, setSummary] = useState<Summary>();
   const [view, setView] = useState<View>("Overview");
   const [search, setSearch] = useState("");
-  const [selectedDoc, setSelectedDoc] = useState("");
   const [editing, setEditing] = useState<{
     kind: RecordKind | "project";
     entity?: Entity;
@@ -116,7 +118,6 @@ export function App() {
     setRecords([]);
     setSummary(undefined);
     setSearch("");
-    setSelectedDoc("");
     setDetailId(undefined);
     setWorkOpen(undefined);
     refresh().catch((e) => setError(e.message));
@@ -176,12 +177,6 @@ export function App() {
       setError((e as Error).message);
     }
   };
-  const filtered = records.filter((r) =>
-    JSON.stringify(r.data).toLowerCase().includes(search.toLowerCase()),
-  );
-  const documents = records.filter((r) => r.kind === "document");
-  const shownDocs = filtered.filter((r) => r.kind === "document");
-  const doc = shownDocs.find((r) => r.id === selectedDoc) ?? shownDocs[0];
   const openRecord = (entity: Entity) => {
     if (entity.kind === "work_item") {
       setDetailId(undefined);
@@ -377,21 +372,23 @@ export function App() {
                   ))}
                 </div>
               </div>
-              {view !== "Overview" && view !== "Plan & WBS" && (
-                <input
-                  className="search"
-                  aria-label={
-                    view === "Activity" ? "Search activity" : "Search records"
-                  }
-                  placeholder={
-                    view === "Activity"
-                      ? "Search changes, origins and sources…"
-                      : "Search this view…"
-                  }
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              )}
+              {view !== "Overview" &&
+                view !== "Plan & WBS" &&
+                view !== "Documents" && (
+                  <input
+                    className="search"
+                    aria-label={
+                      view === "Activity" ? "Search activity" : "Search records"
+                    }
+                    placeholder={
+                      view === "Activity"
+                        ? "Search changes, origins and sources…"
+                        : "Search this view…"
+                    }
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                )}
               {view === "Overview" && summary && (
                 <Overview
                   key={project.id}
@@ -413,69 +410,17 @@ export function App() {
                   openRequest={workOpen}
                 />
               </div>
-              {view === "Documents" &&
-                (doc ? (
-                  <div className="documents-layout">
-                    <nav aria-label="Documents">
-                      {shownDocs.map((d) => (
-                        <button
-                          className={d.id === doc.id ? "active" : ""}
-                          key={d.id}
-                          onClick={() => setSelectedDoc(d.id)}
-                        >
-                          {String(d.data.title)}
-                          <small>
-                            {String(d.data.category)} · r{d.revision}
-                          </small>
-                        </button>
-                      ))}
-                    </nav>
-                    <section className="document">
-                      <header>
-                        <span className="eyebrow">
-                          r{doc.revision} ·{" "}
-                          {String(doc.data.repositoryPath) || "Local document"}
-                        </span>
-                        <div>
-                          <button
-                            aria-label={`History ${doc.data.title}`}
-                            onClick={() => setHistory(doc)}
-                          >
-                            History
-                          </button>
-                          <button
-                            aria-label={`Edit ${doc.data.title}`}
-                            onClick={() =>
-                              setEditing({ kind: "document", entity: doc })
-                            }
-                          >
-                            Edit
-                          </button>
-                        </div>
-                      </header>
-                      <SafeMarkdown
-                        content={String(doc.data.markdown)}
-                        documents={documents}
-                        onDocument={(id) => {
-                          setSearch("");
-                          setSelectedDoc(id);
-                        }}
-                      />
-                      <Fields
-                        data={{
-                          sources: doc.data.sources,
-                          relatedIds: doc.data.relatedIds,
-                        }}
-                        records={records}
-                      />
-                    </section>
-                  </div>
-                ) : (
-                  <Empty
-                    title="Your project library starts here"
-                    text="Add a Markdown document or ask your agent to record a brief, plan or architecture note."
-                  />
-                ))}
+              {view === "Documents" && (
+                <DocumentWorkspace
+                  key={project.id}
+                  projectId={project.id}
+                  records={records}
+                  onEdit={(record) =>
+                    setEditing({ kind: "document", entity: record })
+                  }
+                  onHistory={setHistory}
+                />
+              )}
               {view === "Decisions & Questions" && (
                 <RecordWorkspace
                   key={`${project.id}:decisions`}
@@ -586,7 +531,8 @@ function Empty({ title, text }: { title: string; text: string }) {
 const descriptions: Record<Exclude<View, "Overview">, string> = {
   "Plan & WBS":
     "A practical plan, with source labels and execution evidence kept distinct.",
-  Documents: "The project knowledge your team and agents have recorded.",
+  Documents:
+    "Managed notes and source-qualified repository documents, kept separate.",
   "Decisions & Questions":
     "The reasoning, answers and open questions behind your project.",
   "Security & Architecture":

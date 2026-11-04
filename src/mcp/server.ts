@@ -5,7 +5,7 @@ import { databasePath } from "../core/paths.js";
 import { modifyingTools, toolSchemas, type ToolName } from "../core/schema.js";
 
 const service = new WorkspaceService(databasePath());
-const server = new McpServer({ name: "dmk2", version: "0.2.0" });
+const server = new McpServer({ name: "dmk2", version: "0.3.0" });
 const descriptions: Record<ToolName, string> = {
   get_capabilities:
     "Discover local DMK2 capabilities, record kinds and limits.",

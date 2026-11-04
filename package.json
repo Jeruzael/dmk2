@@ -1,6 +1,6 @@
 {
   "name": "dmk2",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "DMK2 — Your project canvas. AI does the organizing.",
   "license": "AGPL-3.0-only",
@@ -21,7 +21,7 @@
     "mcp:test": "node scripts/connection-test.mjs",
     "test": "tsx --test --test-concurrency=1 tests/*.test.ts",
     "pretest": "npm run build:node",
-    "pretest:desktop": "npm run build && esbuild tests/sample.ts --format=esm --outfile=test-results/sample.mjs",
+    "pretest:desktop": "npm run build && esbuild tests/sample.ts --format=esm --outfile=test-results/sample.mjs && esbuild tests/repository-fixture.ts --format=esm --outfile=test-results/repository-fixture.mjs",
     "test:desktop": "node --test --test-concurrency=1 tests/*desktop.test.mjs",
     "sample": "tsx scripts/sample.ts",
     "schema": "tsx scripts/generate-schema.ts",

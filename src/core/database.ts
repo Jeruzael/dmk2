@@ -24,6 +24,17 @@ export const migrations = [
     // never add defaults to, or rewrite, immutable v1 snapshots and events.
     sql: "-- Work contract v2: optional planning fields, structured checklists and sprint records.\n",
   },
+  {
+    version: 3,
+    // Machine-local source metadata is deliberately outside portable project snapshots.
+    // operations.is_import=2 identifies local-only receipts; export already selects 0.
+    sql: `
+      CREATE TABLE repository_sources (project_id TEXT PRIMARY KEY REFERENCES projects(id), snapshot TEXT NOT NULL CHECK(json_valid(snapshot)));
+      CREATE TABLE repository_events (id TEXT PRIMARY KEY, project_id TEXT NOT NULL REFERENCES projects(id), revision INTEGER NOT NULL, snapshot TEXT NOT NULL CHECK(json_valid(snapshot)), UNIQUE(project_id, revision));
+      CREATE TRIGGER repository_events_immutable_update BEFORE UPDATE ON repository_events BEGIN SELECT RAISE(ABORT, 'Repository observations are immutable'); END;
+      CREATE TRIGGER repository_events_immutable_delete BEFORE DELETE ON repository_events BEGIN SELECT RAISE(ABORT, 'Repository observations are immutable'); END;
+    `,
+  },
 ];
 export class WorkspaceDatabase {
   readonly db: DatabaseSync;

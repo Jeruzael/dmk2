@@ -9,6 +9,14 @@ export type OverviewSummary = {
   executionStatus: Record<string, number>;
   unresolvedQuestions: Entity[];
   blockers: Entity[];
+  repositoryObservation?: {
+    revision: number;
+    ref: string;
+    branch: string;
+    commit: string;
+    observedAt: string;
+    indexed: number;
+  } | null;
 };
 export type IntelligenceDestination =
   "work" | "documents" | "questions" | "decisions" | "security";
@@ -83,7 +91,31 @@ export function Overview({
           <code>
             {String(project.data.observedCommit || "Commit not recorded")}
           </code>
-          <small>Source freshness not independently checked</small>
+          <small>
+            {summary.repositoryObservation ? (
+              <>
+                Library indexed{" "}
+                {new Date(
+                  summary.repositoryObservation.observedAt,
+                ).toLocaleString()}{" "}
+                ·{" "}
+                {summary.repositoryObservation.branch ||
+                  summary.repositoryObservation.ref}
+                {summary.repositoryObservation.commit ===
+                project.data.observedCommit ? (
+                  " · matches this pin"
+                ) : (
+                  <>
+                    <br />
+                    Library pin:{" "}
+                    <code>{summary.repositoryObservation.commit}</code>
+                  </>
+                )}
+              </>
+            ) : (
+              "Observation time not recorded for this project pin"
+            )}
+          </small>
         </div>
         <div>
           <span className="badge">{String(project.data.lifecycle)}</span>

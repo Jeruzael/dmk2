@@ -54,7 +54,7 @@ Use **Export project** to save a `.dmk2` JSON package and **Import .dmk2** to re
 
 The package contains submitted project records, including full historical text. Review that text before sharing. DMK2 never collects credentials, source clones or unrelated files; it cannot identify a secret an agent explicitly pastes into a document. Local runtime data and packages are Git-ignored.
 
-## What works in Phase 1.2
+## What works in Phase 1.3
 
 - Six desktop views: Overview, Plan & WBS, Documents, Decisions & Questions, Security & Architecture, Activity.
 - Plan & WBS has Board, expandable WBS, paged Backlog, optional Sprints and grouped Checklists, sharing one task drawer and filter state.
@@ -65,6 +65,10 @@ The package contains submitted project records, including full historical text. 
 - SQLite WAL, concurrent readers, serialized writers, bounded lock acquisition, versioned migrations.
 - Portable exports/imports preserving project identity, records, every revision, provenance, events and retry receipts.
 - Optional priority, risk, sprint assignments and structured checklist steps. Checklist counts remain distinct from execution, acceptance and verification evidence.
+- Compact project intelligence, question/decision registers and four linked security/architecture subviews, with complete focused details and history.
+- A separate read-only Repository Library for an explicitly selected local Git checkout: complete pinned Markdown inventory, folders/search, on-demand large-file previews and refresh diffs. Managed notes remain separate.
+
+For repository documents, open **Documents → Repository Library → Choose repository**. Observe committed snapshots; commit source changes before refreshing the index. Local source configuration is excluded from portable project packages. See [Phase 1.3 workflow, safety, compatibility and evidence](docs/project-intelligence.md).
 
 DMK2 records explicit submissions. It does not automatically observe chat, Git changes, repository health or implementation completion. Confirmation is an agent-recorded claim, not identity proof.
 
@@ -78,7 +82,7 @@ npm run mcp:test
 npm audit
 ```
 
-Tests use temporary synthetic databases. Real Electron tests exercise the original flows plus 500 tasks across five work views at 1024, 1366 and 1920 pixels, MCP updates, conflicts, restart, legacy packages and export/import. Native dialog results are deterministic. Evidence: [Structured Workspace delivery and screenshots](docs/structured-workspace.md) and [original Phase 1 verification](docs/verification.md).
+Tests use temporary synthetic databases and source repositories. Real Electron tests exercise the original flows plus 500 tasks across five work views, source-status overlap and compact records at 1024, 1366 and 1920 pixels, MCP updates, conflicts, source indexing, long Markdown, restart, legacy packages and export/import. Native dialog results are deterministic. Evidence: [Project Intelligence delivery](docs/project-intelligence.md), [Structured Workspace delivery](docs/structured-workspace.md) and [original verification](docs/verification.md).
 
 ## Structure and limits
 

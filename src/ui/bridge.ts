@@ -6,8 +6,22 @@ declare global {
       execute: (tool: string, args: unknown) => Promise<Reply<unknown>>;
       exportProject: (id: string) => Promise<Reply<{ path: string } | null>>;
       importProject: () => Promise<Reply<{ projectId: string } | null>>;
+      repositoryLibrary: (
+        action: string,
+        args: unknown,
+      ) => Promise<Reply<unknown>>;
     };
   }
+}
+export async function repositoryCall<T>(
+  action: "get" | "choose" | "refresh" | "read" | "history",
+  args: unknown,
+): Promise<T> {
+  if (!window.dmk2?.repositoryLibrary)
+    throw new Error(
+      "Restart the DMK2 desktop app to enable the Repository Library.",
+    );
+  return unwrap<T>(window.dmk2.repositoryLibrary(action, args));
 }
 export async function unwrap<T>(promise: Promise<Reply<unknown>>): Promise<T> {
   const reply = await promise;

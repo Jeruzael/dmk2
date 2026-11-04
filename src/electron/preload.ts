@@ -5,4 +5,6 @@ contextBridge.exposeInMainWorld("dmk2", {
   exportProject: (projectId: string) =>
     ipcRenderer.invoke("dmk2:export", projectId),
   importProject: () => ipcRenderer.invoke("dmk2:import"),
+  repositoryLibrary: (action: string, args: unknown) =>
+    ipcRenderer.invoke("dmk2:repository", action, args),
 });

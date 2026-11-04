@@ -4,6 +4,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { BacklogView } from "../src/ui/work/BacklogView.js";
 import { recordSchemas, type Entity } from "../src/core/schema.js";
+import { DocumentWorkspace } from "../src/ui/documents/DocumentWorkspace.js";
 
 function backlog(sourceStatus: string) {
   const task: Entity = {
@@ -53,4 +54,17 @@ test("Backlog does not guess an execution classification from an unrecognized or
     backlog("UNKNOWN"),
     /class="work-source-chip"[^>]*>UNKNOWN<\/span>/,
   );
+});
+
+test("the managed library does not claim a zero repository count before local metadata has loaded", () => {
+  const html = renderToStaticMarkup(
+    createElement(DocumentWorkspace, {
+      projectId: "synthetic",
+      records: [],
+      onEdit() {},
+      onHistory() {},
+    }),
+  );
+  assert.match(html, /Repository Library \(…\)/);
+  assert.doesNotMatch(html, /Repository Library \(0\)/);
 });
