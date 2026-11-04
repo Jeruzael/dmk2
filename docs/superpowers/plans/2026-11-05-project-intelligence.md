@@ -57,7 +57,7 @@ Files: new `src/repository/{schema,git,library}.ts`, migration 3, narrow Electro
 - [x] Add Managed Documents / Repository Library tabs with separate counts, native source selection, folders/category/path/title search, pinned source/freshness, truthful index results, on-demand preview and internal document/heading navigation.
 - [x] Verify real ORBAN read-only acceptance at the requested source revision when locally available/acquirable; report actual counts/SHA and limitations without publishing private text or screenshots.
 - [x] Run production build, all core/MCP/Electron tests, schema, formatting, connection and audit checks. Review the whole branch independently and fix material issues.
-- [ ] Capture only synthetic screenshots, document compatibility/results/limits, commit and push, open a Draft PR against master, verify its final head and leave unmerged.
+- [x] Capture only synthetic screenshots, document compatibility/results/limits, commit and push, open a Draft PR against master, verify its final head and leave unmerged.
 
 ## Ledger
 
@@ -75,6 +75,7 @@ Files: new `src/repository/{schema,git,library}.ts`, migration 3, narrow Electro
 - Private reference acceptance: 284 indexed, 271 under Docs, zero skipped/unavailable, eight complete large-file byte comparisons and Electron previews, 282 heading-derived titles, no renderer errors/network. Source identity and managed export unchanged. Original user DB remains version 2 with all five original table counts/hashes unchanged (139 records, 169 events). Fixed the connection-check script to create an empty temporary database explicitly, preventing the SDK's restricted environment inheritance from touching the live workspace.
 - Independent whole-branch review identified and verified fixes for two P2 findings: underscore/literal-suffix heading-anchor collisions and branch/SHA mismatch during concurrent HEAD switching. New source resolution pins the full symbolic ref before its commit. Both regressions failed before their fixes; the reviewer independently passed 16 focused source/heading tests. Final `npm run check` passes 48 core/MCP/render tests and nine Electron tests. Repeated private-reference acceptance after the fixes reproduces all exact counts/eight complete previews with no errors/network; original DB hashes remain unchanged.
 - Review rulings: private acceptance remains the implementer's separately verified evidence; non-Windows desktop is explicitly unverified. Two P3 resource recommendations are deferred and documented: stream directory enumeration (current budget checks follow each directory listing), and byte-bound local observation history (currently complete inventories, no UI consumer). The supported reference is small relative to these worst cases; metadata retention/compaction must preserve immutable audit evidence rather than silently rewriting history. No remaining blocking finding.
+- Publication: [Draft PR #3](https://github.com/Jeruzael/dmk2/pull/3), against unchanged `master@ecc91b1`, with six synthetic screenshots, exact verification, compatibility and limits. Reviewed/tested application commit `e1d04ee99d89f864556ab40f686c6f9a52246c15`; this final ledger update changes documentation only. GitHub creation confirmed draft/open/unmerged and matching pushed application head. No automatic merge.
 
 ## Stage 3 interface rulings
 

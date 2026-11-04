@@ -2,6 +2,8 @@
 
 Version 0.3.0 continues from verified `master@ecc91b1d70852d7c77f725e007edc6b918541f67` on `codex/phase-1-3-project-intelligence`. It retains the existing shell, Structured Workspace, 20 MCP tools and portable managed-record contracts.
 
+Published for review in [Draft PR #3](https://github.com/Jeruzael/dmk2/pull/3), unmerged. Reviewed application commit: `e1d04ee99d89f864556ab40f686c6f9a52246c15`.
+
 ## Delivered UI
 
 | Area                    | Behavior                                                                                                                                                                                                                                                                                                |
