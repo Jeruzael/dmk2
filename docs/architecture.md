@@ -6,7 +6,7 @@ Local AI client ── MCP stdio ── independent Node process ─┐
 React renderer ─ preload/IPC ─ Electron main process ───┘
 ```
 
-There is no mandatory HTTP backend, cloud service, authentication system or provider SDK. The process launcher chooses filesystem permissions. Source repository paths/URLs are metadata, not commands or files the runtime opens.
+There is no mandatory HTTP backend, cloud service, authentication system or provider SDK. The process launcher chooses filesystem permissions. A project repository path/URL is recorded metadata and does not automatically authorize runtime reads. Phase 1.3 separately authorizes a local Repository Library through a native directory chooser.
 
 ## Directory responsibilities
 
@@ -89,7 +89,9 @@ The drawer preserves drafts across refreshes, detects stale revisions and offers
 
 ## Renderer boundary
 
-Context isolation, sandboxing and disabled Node integration protect the renderer. Preload exposes exactly `execute`, `exportProject` and `importProject`, never raw IPC or Node. Main checks sender web contents, top frame and the built local page URL. The execute handler accepts named known tools, with export/import routed through native dialogs. Every input is validated again by the service.
+Phase 1.3 appends migration 3 for machine-local repository source snapshots and immutable observation events. No released migration or portable project data is rewritten. The existing operation table distinguishes ordinary portable receipts (`is_import=0`), import custody receipts (`1`) and local source observations (`2`); exports continue to select ordinary receipts and preserve import custody separately. Local index writes, events and receipts are revision-checked and atomic. Source metadata/cache is deliberately absent from v1/v2 project packages. [Full reader and migration contract](project-intelligence.md#storage-safety-and-compatibility).
+
+Context isolation, sandboxing and disabled Node integration protect the renderer. Preload exposes `execute`, `exportProject`, `importProject` and the narrow `repositoryLibrary` capability, never raw IPC or Node. Main checks sender web contents, top frame and the built local page URL. The execute handler accepts named known tools, with export/import routed through native dialogs. Repository actions have strict schemas; roots come from the native chooser and document reads are pinned, membership-checked blob reads. Every input is validated again at its service boundary. No filesystem MCP tool is added.
 
 The production CSP permits only bundled scripts/styles, forbids connections, frames, objects and media. Session requests block non-file content; new windows, permissions, webviews and external navigation are denied. Markdown omits raw HTML and images. Hash links, matching document source paths and `dmk2:document/<ID>` links navigate within the workspace; external URLs remain text. No embedded Mermaid execution is enabled in Phase 1.
 

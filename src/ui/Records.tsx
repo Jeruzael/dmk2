@@ -1,8 +1,10 @@
-import { Children, type ReactNode } from "react";
+import { Children, isValidElement, type ReactNode } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { ChangeEvent, Entity } from "../core/schema.js";
 import { labels } from "./Editor.js";
+import { resolveRepositoryLink } from "./documents/navigation.js";
+import { prepareRepositoryMarkdown } from "./documents/rendering.js";
 export function display(value: unknown): string {
   return Array.isArray(value)
     ? value.map(display).join("\n")
@@ -12,31 +14,61 @@ export function display(value: unknown): string {
           .join("\n")
       : String(value ?? "");
 }
-const headingId = (children: ReactNode) =>
+const headingText = (children: ReactNode): string =>
   Children.toArray(children)
     .map((c) =>
-      typeof c === "string" || typeof c === "number" ? String(c) : "",
+      typeof c === "string" || typeof c === "number"
+        ? String(c)
+        : isValidElement<{ children?: ReactNode }>(c)
+          ? headingText(c.props.children)
+          : "",
     )
-    .join("")
+    .join("");
+const headingId = (children: ReactNode) =>
+  headingText(children)
     .toLowerCase()
-    .replace(/[^\p{L}\p{N}\s-]/gu, "")
+    .replace(/[^\p{L}\p{N}\p{M}\s_-]/gu, "")
     .trim()
     .replace(/\s+/g, "-");
 export function SafeMarkdown({
   content,
   documents,
   onDocument,
+  repository,
+  optimizeLongProse = false,
 }: {
   content: string;
   documents: Entity[];
   onDocument: (id: string) => void;
+  optimizeLongProse?: boolean;
+  repository?: {
+    currentPath: string;
+    paths: readonly string[];
+    onNavigate: (path: string, fragment: string) => void;
+  };
 }) {
+  const ids = new Map<string, number>();
+  const uniqueHeading = (children: ReactNode) => {
+    const base = headingId(children);
+    let count = ids.get(base) ?? 0;
+    let candidate = base;
+    while (ids.has(candidate)) candidate = `${base}-${++count}`;
+    ids.set(base, count);
+    // Generated IDs must also be reserved against literal suffixed headings.
+    ids.set(candidate, 0);
+    return candidate;
+  };
+  const repositoryLink = (href: string) =>
+    repository
+      ? resolveRepositoryLink(repository.currentPath, href, repository.paths)
+      : null;
   return (
     <article className="markdown">
       <Markdown
         remarkPlugins={[remarkGfm]}
         skipHtml
         urlTransform={(url) =>
+          repositoryLink(url) ||
           url.startsWith("#") ||
           url.startsWith("dmk2:document/") ||
           documents.some(
@@ -48,6 +80,18 @@ export function SafeMarkdown({
         components={{
           img: () => null,
           a: ({ href, children }) => {
+            const sourceLink = href ? repositoryLink(href) : null;
+            if (sourceLink)
+              return (
+                <button
+                  className="text-link"
+                  onClick={() =>
+                    repository!.onNavigate(sourceLink.path, sourceLink.fragment)
+                  }
+                >
+                  {children}
+                </button>
+              );
             if (href?.startsWith("#")) return <a href={href}>{children}</a>;
             const doc = documents.find(
               (d) =>
@@ -64,12 +108,27 @@ export function SafeMarkdown({
               </span>
             );
           },
-          h1: ({ children }) => <h1 id={headingId(children)}>{children}</h1>,
-          h2: ({ children }) => <h2 id={headingId(children)}>{children}</h2>,
-          h3: ({ children }) => <h3 id={headingId(children)}>{children}</h3>,
+          h1: ({ children }) => (
+            <h1 id={uniqueHeading(children)}>{children}</h1>
+          ),
+          h2: ({ children }) => (
+            <h2 id={uniqueHeading(children)}>{children}</h2>
+          ),
+          h3: ({ children }) => (
+            <h3 id={uniqueHeading(children)}>{children}</h3>
+          ),
+          h4: ({ children }) => (
+            <h4 id={uniqueHeading(children)}>{children}</h4>
+          ),
+          h5: ({ children }) => (
+            <h5 id={uniqueHeading(children)}>{children}</h5>
+          ),
+          h6: ({ children }) => (
+            <h6 id={uniqueHeading(children)}>{children}</h6>
+          ),
         }}
       >
-        {content}
+        {optimizeLongProse ? prepareRepositoryMarkdown(content) : content}
       </Markdown>
     </article>
   );

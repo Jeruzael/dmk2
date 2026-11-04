@@ -114,3 +114,11 @@ Each checklist step has a stable `id`, nonempty `text`, explicit boolean `done`,
 `get_history` retains ascending order by default. For recent bounded pages, use `direction: "desc"`, `limit`, then `beforeSequence` equal to the last returned sequence. `afterSequence` remains available as a lower bound. Search and entity filtering execute in SQLite before pagination. `get_summary.latestSequence` lets clients detect new project events without retrieving the complete history.
 
 Version 0.2.0 reads package formats 1 and 2 and exports format 2. See [migration and custody compatibility](architecture.md#phase-12-contract-version-2).
+
+## Project Intelligence (0.3.0)
+
+The same 20 MCP input contracts remain available. Database marker 3 adds a local repository metadata cache without changing format 2 exports or v1/v2 import semantics. `get_capabilities` reports `databaseVersion` separately from the portable `schemaVersion`.
+
+`get_summary.repositoryObservation` is either null or the last successful local index's revision, ref, branch, exact commit, observation time and indexed count. It is cached SQLite metadata: the tool does not inspect a checkout, expose document paths/bodies or prove current source freshness. Managed-record history remains available through the existing tools.
+
+The Repository Library is desktop-only. The user selects a complete local checkout and a ref; the desktop reads committed Git blobs through a narrow allowlisted capability. Agents still use their own separately authorized development tools to acquire/edit/commit repositories, then the user refreshes the library. There is no arbitrary filesystem MCP endpoint. [Reader workflow and limits](project-intelligence.md#repository-library-workflow).

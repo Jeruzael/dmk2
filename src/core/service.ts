@@ -201,8 +201,9 @@ export class WorkspaceService {
     if (tool === "get_capabilities")
       return {
         name: "DMK2",
-        version: "0.2.0",
+        version: "0.3.0",
         schemaVersion: 2,
+        databaseVersion: 3,
         readablePackageVersions: [1, 2],
         tools: Object.keys(toolSchemas),
         recordKinds: kinds,
@@ -246,8 +247,14 @@ export class WorkspaceService {
         const status = r.data.executionStatus as string;
         breakdown[status] = (breakdown[status] ?? 0) + 1;
       });
+      const observation = this.store.db
+        .prepare(
+          "SELECT json_extract(snapshot,'$.revision') AS revision, json_extract(snapshot,'$.ref') AS ref, json_extract(snapshot,'$.branch') AS branch, json_extract(snapshot,'$.commit') AS [commit], json_extract(snapshot,'$.observedAt') AS observedAt, json_extract(snapshot,'$.counts.indexed') AS indexed FROM repository_sources WHERE project_id=?",
+        )
+        .get(args.projectId);
       return {
         project,
+        repositoryObservation: observation ? { ...observation } : null,
         latestSequence: Number(
           this.store.db
             .prepare(

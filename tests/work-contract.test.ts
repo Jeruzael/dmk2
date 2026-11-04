@@ -31,7 +31,7 @@ function setup(t: { after: (fn: () => void) => void }) {
   return { s, p, dir };
 }
 
-test("migration 2 advances the contract marker without rewriting v1 snapshots, events or receipts", () => {
+test("migration upgrades preserve v1 snapshots, events and receipts exactly", () => {
   const dir = mkdtempSync(join(tmpdir(), "dmk2-v1-migration-"));
   const path = join(dir, "old.sqlite");
   const db = new DatabaseSync(path);
@@ -69,7 +69,7 @@ test("migration 2 advances the contract marker without rewriting v1 snapshots, e
   try {
     const read = new DatabaseSync(path, { readOnly: true });
     try {
-      assert.equal(read.prepare("PRAGMA user_version").get()!.user_version, 2);
+      assert.equal(read.prepare("PRAGMA user_version").get()!.user_version, 3);
     } finally {
       read.close();
     }

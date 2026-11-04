@@ -2,10 +2,18 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Entity, RecordKind, ToolName } from "../core/schema.js";
 import { execute, unwrap } from "./bridge.js";
 import { Editor } from "./Editor.js";
-import { Fields, HistoryList, RecordCard, SafeMarkdown } from "./Records.js";
+import { HistoryList } from "./Records.js";
 import { WorkManagement } from "./work/WorkManagement.js";
 import { useHistory } from "./useHistory.js";
 import { RecordHistory } from "./RecordHistory.js";
+import {
+  Overview,
+  type IntelligenceDestination,
+  type OverviewSummary,
+} from "./intelligence/Overview.js";
+import { RecordDetails } from "./intelligence/RecordDetails.js";
+import { RecordWorkspace } from "./intelligence/RecordWorkspace.js";
+import { DocumentWorkspace } from "./documents/DocumentWorkspace.js";
 const views = [
   "Overview",
   "Plan & WBS",
@@ -35,6 +43,7 @@ const additions: Record<View, RecordKind[]> = {
   Activity: [],
 };
 type Summary = {
+  repositoryObservation?: OverviewSummary["repositoryObservation"];
   latestSequence: number;
   counts: Record<string, number>;
   executionStatus: Record<string, number>;
@@ -56,12 +65,17 @@ export function App() {
   const [summary, setSummary] = useState<Summary>();
   const [view, setView] = useState<View>("Overview");
   const [search, setSearch] = useState("");
-  const [selectedDoc, setSelectedDoc] = useState("");
   const [editing, setEditing] = useState<{
     kind: RecordKind | "project";
     entity?: Entity;
   }>();
   const [history, setHistory] = useState<Entity>();
+  const [detailId, setDetailId] = useState<string>();
+  const [knowledgeRequest, setKnowledgeRequest] = useState<{
+    tab: string;
+    nonce: number;
+  }>();
+  const [workOpen, setWorkOpen] = useState<{ id: string; nonce: number }>();
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(true);
@@ -104,7 +118,8 @@ export function App() {
     setRecords([]);
     setSummary(undefined);
     setSearch("");
-    setSelectedDoc("");
+    setDetailId(undefined);
+    setWorkOpen(undefined);
     refresh().catch((e) => setError(e.message));
     const timer = setInterval(() => {
       refresh().catch((e) => setError(e.message));
@@ -162,33 +177,36 @@ export function App() {
       setError((e as Error).message);
     }
   };
-  const filtered = records.filter((r) =>
-    JSON.stringify(r.data).toLowerCase().includes(search.toLowerCase()),
-  );
-  const documents = records.filter((r) => r.kind === "document");
-  const shownDocs = filtered.filter((r) => r.kind === "document");
-  const doc = shownDocs.find((r) => r.id === selectedDoc) ?? shownDocs[0];
-  const cards = (items: Entity[]) =>
-    items.length ? (
-      <div className="card-grid">
-        {items.map((r) => (
-          <RecordCard
-            key={r.id}
-            record={r}
-            records={records}
-            edit={(entity) =>
-              setEditing({ kind: entity.kind as RecordKind, entity })
-            }
-            history={setHistory}
-          />
-        ))}
-      </div>
-    ) : (
-      <Empty
-        title="Nothing recorded yet"
-        text="Your agent can organize this area through MCP, or you can add a record above."
-      />
+  const openRecord = (entity: Entity) => {
+    if (entity.kind === "work_item") {
+      setDetailId(undefined);
+      setView("Plan & WBS");
+      setWorkOpen({ id: entity.id, nonce: Date.now() });
+    } else setDetailId(entity.id);
+  };
+  const navigateIntelligence = (destination: IntelligenceDestination) => {
+    setSearch("");
+    if (destination === "questions" || destination === "decisions")
+      setKnowledgeRequest({
+        tab: destination === "questions" ? "Questions" : "Decision Register",
+        nonce: Date.now(),
+      });
+    setView(
+      (
+        {
+          work: "Plan & WBS",
+          documents: "Documents",
+          questions: "Decisions & Questions",
+          decisions: "Decisions & Questions",
+          security: "Security & Architecture",
+        } as const
+      )[destination],
     );
+  };
+  const detail =
+    detailId === project?.id
+      ? project
+      : records.find((record) => record.id === detailId);
   const workChanged = async (entity?: Entity) => {
     if (entity)
       setRecords((old) =>
@@ -326,8 +344,7 @@ export function App() {
                   </h1>
                   <p>
                     {view === "Overview"
-                      ? String(project.data.description) ||
-                        "Add your vision. Build the plan as you learn."
+                      ? "Project intelligence from recorded facts, source observations and work evidence."
                       : descriptions[view]}
                   </p>
                 </div>
@@ -355,122 +372,33 @@ export function App() {
                   ))}
                 </div>
               </div>
-              {view !== "Overview" && view !== "Plan & WBS" && (
-                <input
-                  className="search"
-                  aria-label={
-                    view === "Activity" ? "Search activity" : "Search records"
-                  }
-                  placeholder={
-                    view === "Activity"
-                      ? "Search changes, origins and sources…"
-                      : "Search this view…"
-                  }
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              )}
+              {view !== "Overview" &&
+                view !== "Plan & WBS" &&
+                view !== "Documents" && (
+                  <input
+                    className="search"
+                    aria-label={
+                      view === "Activity" ? "Search activity" : "Search records"
+                    }
+                    placeholder={
+                      view === "Activity"
+                        ? "Search changes, origins and sources…"
+                        : "Search this view…"
+                    }
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                )}
               {view === "Overview" && summary && (
-                <>
-                  <div className="stats">
-                    {[
-                      ["Requirements", summary.counts.requirement],
-                      ["Decisions", summary.counts.decision],
-                      ["Open questions", summary.unresolvedQuestions.length],
-                      ["Blockers", summary.blockers.length],
-                    ].map(([label, value]) => (
-                      <section key={label}>
-                        <span>{label}</span>
-                        <strong>{value}</strong>
-                      </section>
-                    ))}
-                  </div>
-                  <div className="overview-grid">
-                    <section className="panel">
-                      <h2>Project context</h2>
-                      <span className="badge">
-                        {String(project.data.lifecycle)}
-                      </span>
-                      <Fields
-                        data={{
-                          goals: project.data.goals,
-                          repository:
-                            project.data.repository || "Not connected",
-                          branch: project.data.branch || "Not recorded",
-                          observedCommit:
-                            project.data.observedCommit || "Not observed",
-                          sources: project.data.sources,
-                        }}
-                        records={records}
-                      />
-                      <small>
-                        Source facts are explicitly recorded by agents or the
-                        local app.
-                      </small>
-                    </section>
-                    <section className="panel">
-                      <h2>Work in view</h2>
-                      {Object.keys(summary.executionStatus).length ? (
-                        Object.entries(summary.executionStatus).map(
-                          ([status, n]) => (
-                            <div className="status-row" key={status}>
-                              <span className={`badge ${status}`}>
-                                {status}
-                              </span>
-                              <strong>{n}</strong>
-                            </div>
-                          ),
-                        )
-                      ) : (
-                        <p className="muted">No work items recorded yet.</p>
-                      )}
-                      <p className="caption">
-                        Source labels are shown separately in Plan &amp; WBS.
-                      </p>
-                    </section>
-                    <section className="panel">
-                      <h2>Unresolved questions</h2>
-                      {summary.unresolvedQuestions.length ? (
-                        summary.unresolvedQuestions.map((q) => (
-                          <div className="compact-row" key={q.id}>
-                            <strong>{String(q.data.title)}</strong>
-                            <span className="badge">
-                              {String(q.data.state)}
-                            </span>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="muted">
-                          No unresolved questions recorded.
-                        </p>
-                      )}
-                    </section>
-                    <section className="panel">
-                      <h2>Current blockers</h2>
-                      {summary.blockers.length ? (
-                        summary.blockers.map((r) => (
-                          <div key={r.id}>
-                            <h3>{String(r.data.title)}</h3>
-                            <p>{String(r.data.description)}</p>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="muted">No blockers recorded.</p>
-                      )}
-                    </section>
-                  </div>
-                  <section className="section">
-                    <h2>Requirements</h2>
-                    {cards(records.filter((r) => r.kind === "requirement"))}
-                  </section>
-                  <section className="section">
-                    <h2>Recent activity</h2>
-                    <HistoryList
-                      events={events.slice(0, 5)}
-                      records={records}
-                    />
-                  </section>
-                </>
+                <Overview
+                  key={project.id}
+                  project={project}
+                  records={records}
+                  summary={summary}
+                  events={events}
+                  onOpen={openRecord}
+                  onNavigate={navigateIntelligence}
+                />
               )}
               <div hidden={view !== "Plan & WBS"}>
                 <WorkManagement
@@ -479,86 +407,41 @@ export function App() {
                   records={records}
                   onChanged={workChanged}
                   onLeaveGuardChange={setWorkLeaveGuard}
+                  openRequest={workOpen}
                 />
               </div>
-              {view === "Documents" &&
-                (doc ? (
-                  <div className="documents-layout">
-                    <nav aria-label="Documents">
-                      {shownDocs.map((d) => (
-                        <button
-                          className={d.id === doc.id ? "active" : ""}
-                          key={d.id}
-                          onClick={() => setSelectedDoc(d.id)}
-                        >
-                          {String(d.data.title)}
-                          <small>
-                            {String(d.data.category)} · r{d.revision}
-                          </small>
-                        </button>
-                      ))}
-                    </nav>
-                    <section className="document">
-                      <header>
-                        <span className="eyebrow">
-                          r{doc.revision} ·{" "}
-                          {String(doc.data.repositoryPath) || "Local document"}
-                        </span>
-                        <div>
-                          <button
-                            aria-label={`History ${doc.data.title}`}
-                            onClick={() => setHistory(doc)}
-                          >
-                            History
-                          </button>
-                          <button
-                            aria-label={`Edit ${doc.data.title}`}
-                            onClick={() =>
-                              setEditing({ kind: "document", entity: doc })
-                            }
-                          >
-                            Edit
-                          </button>
-                        </div>
-                      </header>
-                      <SafeMarkdown
-                        content={String(doc.data.markdown)}
-                        documents={documents}
-                        onDocument={(id) => {
-                          setSearch("");
-                          setSelectedDoc(id);
-                        }}
-                      />
-                      <Fields
-                        data={{
-                          sources: doc.data.sources,
-                          relatedIds: doc.data.relatedIds,
-                        }}
-                        records={records}
-                      />
-                    </section>
-                  </div>
-                ) : (
-                  <Empty
-                    title="Your project library starts here"
-                    text="Add a Markdown document or ask your agent to record a brief, plan or architecture note."
-                  />
-                ))}
-              {view === "Decisions & Questions" &&
-                cards(
-                  filtered.filter((r) =>
-                    ["question", "decision"].includes(r.kind),
-                  ),
-                )}
-              {view === "Security & Architecture" &&
-                cards(
-                  filtered.filter(
-                    (r) =>
-                      ["architecture", "risk"].includes(r.kind) ||
-                      (r.kind === "requirement" &&
-                        r.data.classification === "security"),
-                  ),
-                )}
+              {view === "Documents" && (
+                <DocumentWorkspace
+                  key={project.id}
+                  projectId={project.id}
+                  records={records}
+                  onEdit={(record) =>
+                    setEditing({ kind: "document", entity: record })
+                  }
+                  onHistory={setHistory}
+                />
+              )}
+              {view === "Decisions & Questions" && (
+                <RecordWorkspace
+                  key={`${project.id}:decisions`}
+                  projectId={project.id}
+                  area="decisions"
+                  records={records}
+                  search={search}
+                  onOpen={openRecord}
+                  request={knowledgeRequest}
+                />
+              )}
+              {view === "Security & Architecture" && (
+                <RecordWorkspace
+                  key={`${project.id}:security`}
+                  projectId={project.id}
+                  area="security"
+                  records={records}
+                  search={search}
+                  onOpen={openRecord}
+                />
+              )}
               {view === "Activity" && (
                 <>
                   {summary?.imports.map((i) => (
@@ -605,6 +488,18 @@ export function App() {
           )}
         </div>
       </main>
+      {detail && (
+        <RecordDetails
+          key={detail.id}
+          record={detail}
+          records={records}
+          onClose={() => setDetailId(undefined)}
+          onOpen={openRecord}
+          onEdit={(entity) =>
+            setEditing({ kind: entity.kind as RecordKind | "project", entity })
+          }
+        />
+      )}
       {editing && (
         <Editor
           key={`${editing.kind}-${editing.entity?.id ?? "new"}`}
@@ -636,7 +531,8 @@ function Empty({ title, text }: { title: string; text: string }) {
 const descriptions: Record<Exclude<View, "Overview">, string> = {
   "Plan & WBS":
     "A practical plan, with source labels and execution evidence kept distinct.",
-  Documents: "The project knowledge your team and agents have recorded.",
+  Documents:
+    "Managed notes and source-qualified repository documents, kept separate.",
   "Decisions & Questions":
     "The reasoning, answers and open questions behind your project.",
   "Security & Architecture":

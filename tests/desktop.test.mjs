@@ -97,16 +97,38 @@ test(
       await page
         .getByRole("button", { name: "Decisions & Questions", exact: true })
         .click();
+      await page.getByRole("tab", { name: "Questions", exact: true }).click();
+      await page
+        .getByRole("button", { name: "Who will use the planner?", exact: true })
+        .click();
+      await page
+        .getByRole("dialog", { name: "Who will use the planner?", exact: true })
+        .getByText("Beginner athletes", { exact: true })
+        .waitFor();
+      await page.keyboard.press("Escape");
+      await page
+        .getByRole("tab", { name: "Decision Register", exact: true })
+        .click();
+      await page
+        .getByRole("button", { name: "Choose local storage", exact: true })
+        .click();
       await page
         .getByRole("heading", { name: "Choose local storage", exact: true })
         .waitFor();
-      await page.getByText("Beginner athletes", { exact: true }).waitFor();
+      await page.keyboard.press("Escape");
       await page
         .getByRole("button", { name: "Security & Architecture", exact: true })
         .click();
       await page
+        .getByRole("tab", { name: "Risks & Threats", exact: true })
+        .click();
+      await page
+        .getByRole("button", { name: "Untrusted note content", exact: true })
+        .click();
+      await page
         .getByRole("heading", { name: "Untrusted note content", exact: true })
         .waitFor();
+      await page.keyboard.press("Escape");
       await page.getByRole("button", { name: "Activity", exact: true }).click();
       await page.getByLabel("Search activity").fill("local-app");
       await page.getByText("local-app", { exact: true }).first().waitFor();

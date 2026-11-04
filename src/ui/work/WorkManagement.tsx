@@ -39,11 +39,13 @@ export function WorkManagement({
   records,
   onChanged,
   onLeaveGuardChange,
+  openRequest,
 }: {
   project: Entity;
   records: Entity[];
   onChanged: (entity?: Entity) => Promise<void>;
   onLeaveGuardChange?: (guard: () => boolean) => void;
+  openRequest?: { id: string; nonce: number };
 }) {
   const [session, setSession] = useState<Session>(
     () =>
@@ -81,6 +83,13 @@ export function WorkManagement({
     onLeaveGuardChange?.(guard);
     return () => onLeaveGuardChange?.(() => true);
   }, [guard, onLeaveGuardChange]);
+  useEffect(() => {
+    if (openRequest && guard()) {
+      opener.current = document.activeElement as HTMLElement;
+      setDrawerSection("Details");
+      setSelected({ kind: "task", id: openRequest.id });
+    }
+  }, [openRequest, guard]);
   const all = useMemo(
     () => records.filter((r) => r.kind === "work_item"),
     [records],
